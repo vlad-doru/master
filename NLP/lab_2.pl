@@ -16,7 +16,7 @@ concat([], L, L).
 concat([H | T], L2, [H | Lc] ) :- concat(T, L2, Lc).
 % Ex 2.
 checkset([]).
-checkset([H | T]) :- notin(H, T) , set(T).
+checkset([H | T]) :- notin(H, T) , checkset(T).
 % Ex 3.
 listtoset([], []).
 listtoset([H | T], [H | T1]) :- remove(H, T, T2), listtoset(T2, T1).
