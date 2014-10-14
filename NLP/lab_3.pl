@@ -31,3 +31,14 @@ minimum([E1, E2 | T], M) :- E2 > E1, minimum([E1 | T], M).
 findbyindex(0, [H | _], H).
 findbyindex(X, [_ | T], R) :- X > 0, S is X - 1, findbyindex(S, T, R).
 % Ex 5
+insertatindex(0, C, L, [C | L]).
+insertatindex(X, C, [H | T], [H | R]) :- X > 0, S is X -1, insertatindex(S, C, T, R) .
+% Ex 6
+merge([], L, L).
+merge(L, [], L).
+merge([H1 | T1], [H2 | T2], [R | T]) :- H1 < H2, R is H1, merge(T1, [H2 | T2], T).
+merge([H1 | T1], [H2 | T2], [R | T]) :- H1 >= H2, R is H2, merge([H1 | T1], T2, T).
+% Ex 7
+splitby(_, [], _, _).
+splitby(X, [H | T], [S | L], R) :- X >= H, S is H, splitby(X, T, L, R).
+splitby(X, [H | T], L, [S | R]) :- X < H, S is H, splitby(X, T, L, R).
