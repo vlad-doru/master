@@ -1,0 +1,15 @@
+Algoritm bottom-up:
+
+P1: Se deplaseaza primul cuvant din sirul de intrare in stiva.
+P2: Se reduce stiva in mod repetat utilizand intrarile
+lexicale si regulile gramaticii pana cand aceasta operatie
+nu mai este posibila.
+P3: Daca mai exista cuvinte in sirul de intrare atunci
+se merge la pasul 1 altfel stop.
+
+Legat de implementarea in prolog intervin doua principii.
+Constructia stivei se face inapoi.
+Regulile gramaticii se memoreaza inapoi.
+
+Se deplaseaza cuvintele de la inceputul sirului de intrare
+la inceputul stivei. 

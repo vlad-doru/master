@@ -21,8 +21,9 @@ replacefirst(_, _, [], []).
 replacefirst(X, Y, [X | T1], [Y | T1]).
 replacefirst(X, Y, [H | T1], [H | T2]) :- X\=H, replacefirst(X, Y, T1, T2).
 % Ex 2
-reverse([], _).
-reverse([H | T], R) :- reverse(T, S), concat(S, [H], R).
+reverse(L,R):-  accRev(L,[],R).
+accRev([H|T],A,R):-  accRev(T,[H|A],R). 
+accRev([],A,A).
 % Ex 3
 minimum([M], M).
 minimum([E1, E2 | T], M) :- E1 > E2, minimum([E2 | T], M).
@@ -39,6 +40,6 @@ merge(L, [], L).
 merge([H1 | T1], [H2 | T2], [R | T]) :- H1 < H2, R is H1, merge(T1, [H2 | T2], T).
 merge([H1 | T1], [H2 | T2], [R | T]) :- H1 >= H2, R is H2, merge([H1 | T1], T2, T).
 % Ex 7
-splitby(_, [], _, _).
+splitby(_, [], [], []).
 splitby(X, [H | T], [S | L], R) :- X >= H, S is H, splitby(X, T, L, R).
 splitby(X, [H | T], L, [S | R]) :- X < H, S is H, splitby(X, T, L, R).
