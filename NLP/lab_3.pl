@@ -22,7 +22,7 @@ replacefirst(X, Y, [X | T1], [Y | T1]).
 replacefirst(X, Y, [H | T1], [H | T2]) :- X\=H, replacefirst(X, Y, T1, T2).
 % Ex 2
 reverse(L,R):-  accRev(L,[],R).
-accRev([H|T],A,R):-  accRev(T,[H|A],R). 
+accRev([H|T],A,R):-  accRev(T,[H|A],R).
 accRev([],A,A).
 % Ex 3
 minimum([M], M).
