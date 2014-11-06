@@ -28,5 +28,3 @@ cuvant(v, iubeste).
 cuvant(v, iubesc).
 
 parse(X, ParseTree) :- parse(s, X, [], ParseTree).
-
-generate_all(L) :- findall(X, parse(s, X, []), L).
