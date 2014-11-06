@@ -23,6 +23,6 @@ cuvant(n, plural, artistii).
 cuvant(v, singular, iubeste).
 cuvant(v, plural, iubesc).
 
-parse(X) :- parse(s, _, X, [], Y), write(Y).
+parse(X, ParseTree) :- parse(s, _, X, [], ParseTree).
 
 generate_all(L) :- findall(X, parse(s, _, X, []), L).

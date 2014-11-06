@@ -27,6 +27,6 @@ cuvant(n, artistii).
 cuvant(v, iubeste).
 cuvant(v, iubesc).
 
-parse(X) :- parse(s, X, [], Y), write(Y).
+parse(X, ParseTree) :- parse(s, X, [], ParseTree).
 
 generate_all(L) :- findall(X, parse(s, X, []), L).
