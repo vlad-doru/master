@@ -8,29 +8,32 @@ parse(S) :- parse(s, S, []).
 parse(C, S1, S) :- cuvant(W, S1, S2),
                    call(W, C, S2, S).
 
-% Regulile gramaticii
-% S -> NP VP
-np(C, S1, S) :- parse(vp, S1, S2), s(C, S2, S).
-% NP -> Det N
-det(C, S1, S) :- parse(n, S1, S2), np(C, S2, S).
+% Regulile gramaticii + reguli oprire
+s(s, X, X).
+
+np(np, X, X).
 % NP -> NP Conj NP
 np(C, S1, S) :- parse(conj, S1, S2), parse(np, S2, S3), np(C, S3, S).
+% S -> NP VP
+np(C, S1, S) :- parse(vp, S1, S2), s(C, S2, S).
+
+det(det, X, X).
+% NP -> Det N
+det(C, S1, S) :- parse(n, S1, S2), np(C, S2, S).
+
+v(v, X, X).
 % VP -> V NP
 v(C, S1, S) :- parse(np, S1, S2), vp(C, S2, S).
 % VP -> V NP PP
 v(C, S1, S) :- parse(np, S1, S2), parse(pp, S2, S3), vp(C, S3, S).
+
+p(p, X, X).
 % PP -> P NP
 p(C, S1, S) :- parse(np, S1, S2), pp(C, S2, S).
 
-% Regulile de oprire.
-s(s, X, X).
-np(np, X, X).
 vp(vp, X, X).
-det(det, X, X).
 n(n, X, X).
-v(v, X, X).
 pp(pp, X, X).
-p(p, X, X).
 conj(conj, X, X).
 
 % Lexicon
