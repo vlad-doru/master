@@ -1,31 +1,33 @@
-% Ion Vlad-Doru
-% Sisteme Distribuite
+% Vlad-Doru Ion
+% Sisteme distribuite
 
-% Ex 8
+% Problema 10.
 
-% O interogare de tipul parse(Sir) functioneaza in felul urmator:
-% Se alege un cuvant, apoci se completeaza regula care il genereaza.
-% Practic arborele de parsare va creste succesiv cu un nivel intrucat
-% parsarea top-down va reusi.
+parse(Sir, Arbore) :- parse(s, Sir, [], Arbore).
 
-parse(S) :- parse(s, S, []).
+parse(SimbolFinal, [Cuvant | RestSir], SirFinal, Arbore) :-
+    cuvant(Simbol, Cuvant),
+    legatura(Simbol, SimbolFinal),
+    completeaza(Simbol, SimbolFinal, RestSir, SirFinal, [Simbol, [Cuvant]], Arbore).
 
-parse(C, [Cuvant | S2], S) :- cuvant(W, Cuvant),
-                              legatura(W, C),
-                              completeaza(W, C, S2, S).
+parse(SimbolFinal, Sir, SirFinal, Arbore) :-
+    regula(Simbol, []),
+    legatura(Simbol, SimbolFinal),
+    completeaza(Simbol, SimbolFinal, Sir, SirFinal, [Simbol, []], Arbore).
 
-parse(C, S2, S) :- regula(W, []),
-                   legatura(W, C),
-                   completeaza(W, C, S2, S).
+% Arborele pe care l-am obtinut trebuie sa fie egal cu arborele final
+completeaza(SimbolFinal, SimbolFinal, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+% Arborele obtinut din stanga se compune cu arborele obtinut prin parsare
+% top-down si se asigneaza regulei curente.
+completeaza(Simbol, SimbolFinal, Sir, SirFinal, ArboreStanga, ArboreFinal) :-
+    regula(Parinte, [Simbol | Rest]),
+    parse_lista(Rest, Sir, SirInter, ArboreInter),
+    completeaza(Parinte, SimbolFinal, SirInter, SirFinal, [Parinte, [ArboreStanga | ArboreInter]], ArboreFinal).
 
-completeaza(C, C, S, S).
-completeaza(W, C, S1, S) :- regula(P, [W | Rest]),
-                            parse_lista(Rest, S1, S2),
-                            completeaza(P, C, S2, S).
-
-parse_lista([C|Cs], S1, S) :- parse(C, S1, S2),
-                              parse_lista(Cs, S2, S).
-parse_lista([], S, S).
+parse_lista([Simbol | Simboluri], Sir, SirFinal, [Arbore1 | Arbore2]) :-
+    parse(Simbol, Sir, SirInter, Arbore1),
+    parse_lista(Simboluri, SirInter, SirFinal, Arbore2).
+parse_lista([], SirFinal, SirFinal, []).
 
 % Regulile gramaticii
 regula(s, [np, vp]).
@@ -38,7 +40,12 @@ regula(det, []).
 % Predicat generate links.
 :-dynamic legatura/2.
 generate_links(X) :-  assert(legatura(X, X)).
-generate_links(X) :- regula(Y, [X | _]), X\=Y, generate_links(Y), legatura(Y, Z), \+legatura(X, Z), assert(legatura(X, Z)), print(X), print(' '), print(Z), nl.
+generate_links(X) :-
+    regula(Y, [X | _]), X\=Y,
+    generate_links(Y),
+    legatura(Y, Z), \+legatura(X, Z),
+    assert(legatura(X, Z)),
+    print(X), print(' '), print(Z), nl.
 % Cuvinte
 cuvant(det, the).
 cuvant(det, all).
