@@ -5,8 +5,8 @@
 
 parse(S) :- parse(s, S, []).
 
-parse(C, S1, S) :- cuvant(W, S1, S2),
-                   call(W, C, S2, S).
+parse(C, [X | S1], S) :- cuvant(W, X),
+                   call(W, C, S1, S).
 
 % Regulile gramaticii + reguli oprire
 s(s, X, X).
@@ -37,20 +37,20 @@ pp(pp, X, X).
 conj(conj, X, X).
 
 % Lexicon
-cuvant(det, [the|X], X).
-cuvant(det, [all|X], X).
-cuvant(det, [every|X], X).
-cuvant(p, [near|X], X).
-cuvant(conj, [and|X], X).
-cuvant(n, [dog|X], X).
-cuvant(n, [dogs|X], X).
-cuvant(n, [cat|X], X).
-cuvant(n, [cats|X], X).
-cuvant(n, [elephant|X], X).
-cuvant(n, [elephants|X], X).
-cuvant(v, [chase|X], X).
-cuvant(v, [chases|X], X).
-cuvant(v, [see|X], X).
-cuvant(v, [sees|X], X).
-cuvant(v, [amuse|X], X).
-cuvant(v, [amuses|X], X).
+cuvant(det, the).
+cuvant(det, all).
+cuvant(det, every).
+cuvant(p, near).
+cuvant(conj, and).
+cuvant(n, dog).
+cuvant(n, dogs).
+cuvant(n, cat).
+cuvant(n, cats).
+cuvant(n, elephant).
+cuvant(n, elephants).
+cuvant(v, chase).
+cuvant(v, chases).
+cuvant(v, see).
+cuvant(v, sees).
+cuvant(v, amuse).
+cuvant(v, amuses).
