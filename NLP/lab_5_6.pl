@@ -1,25 +1,27 @@
-% Ion Vlad-Doru
-% Sisteme Distribuite
+% Vlad-Doru Ion
+% Sisteme distribuite
 
-% Ex 6
+% Problema 5.
 
-parse(S, T) :- parse(s, S, [], T).
+parse(Sir, Arbore) :- parse(s, Sir, [], Arbore).
 
-% Arborele care a fost obtinut pana acum in stanga e [W, Cuvant].
-parse(C, [Cuvant | S2], S, T) :- cuvant(W, Cuvant),
-                                 completeaza(W, C, S2, S, [W, [Cuvant]], T).
+parse(SimbolFinal, [Cuvant | RestSir], SirFinal, Arbore) :-
+    cuvant(Simbol, Cuvant),
+    completeaza(Simbol, SimbolFinal, RestSir, SirFinal, [Simbol, [Cuvant]], Arbore).
 
 % Arborele pe care l-am obtinut trebuie sa fie egal cu arborele final
-completeaza(C, C, S, S, T, T).
+completeaza(SimbolFinal, SimbolFinal, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % Arborele obtinut din stanga se compune cu arborele obtinut prin parsare
 % top-down si se asigneaza regulei curente.
-completeaza(W, C, S1, S, TLeft, T) :- regula(P, [W | Rest]),
-                            parse_lista(Rest, S1, S2, T1),
-                            completeaza(P, C, S2, S, [P, [TLeft | T1]], T).
+completeaza(Simbol, SimbolFinal, Sir, SirFinal, ArboreStanga, ArboreFinal) :-
+    regula(Parinte, [Simbol | Rest]),
+    parse_lista(Rest, Sir, SirInter, ArboreInter),
+    completeaza(Parinte, SimbolFinal, SirInter, SirFinal, [Parinte, [ArboreStanga | ArboreInter]], ArboreFinal).
 
-parse_lista([C|Cs], S1, S, [Y1 | Y2]) :- parse(C, S1, S2, Y1),
-                              parse_lista(Cs, S2, S, Y2).
-parse_lista([], S, S, []).
+parse_lista([Simbol | Simboluri], Sir, SirFinal, [Arbore1 | Arbore2]) :-
+    parse(Simbol, Sir, SirInter, Arbore1),
+    parse_lista(Simboluri, SirInter, SirFinal, Arbore2).
+parse_lista([], SirFinal, SirFinal, []).
 
 % Regulile gramaticii
 regula(s, [np, vp]).
