@@ -1,27 +1,27 @@
-% Ion Vlad-Doru
-% Sisteme Distribuite
+% Vlad-Doru Ion
+% Sisteme distribuite
 
-% Ex 5
+% Problema 5.
 
-parse(S, T) :- parse(s, S, [], T, _).
+parse(Sir, Arbore) :- parse(s, Sir, [], Arbore, _).
 
-% Arborele care a fost obtinut pana acum in stanga e [W, Cuvant].
-parse(C, [Cuvant | S2], S, T, Numar) :-
-                                 cuvant(W, Numar, Cuvant),
-                                 completeaza(W, C, S2, S, [W, [Cuvant]], T, Numar).
+parse(SimbolFinal, [Cuvant | RestSir], SirFinal, Arbore, Numar) :-
+    cuvant(Simbol, Numar, Cuvant),
+    completeaza(Simbol, SimbolFinal, RestSir, SirFinal, [Simbol, [Cuvant]], Arbore, Numar).
 
 % Arborele pe care l-am obtinut trebuie sa fie egal cu arborele final
-completeaza(C, C, S, S, T, T, _).
+completeaza(SimbolFinal, SimbolFinal, SirFinal, SirFinal, ArboreFinal, ArboreFinal, _).
 % Arborele obtinut din stanga se compune cu arborele obtinut prin parsare
 % top-down si se asigneaza regulei curente.
-completeaza(W, C, S1, S, TLeft, T, Numar) :-
-                            regula(P, NumarP, [Numar | Numere], [W | Rest]),
-                            parse_lista(Rest, S1, S2, T1, Numere),
-                            completeaza(P, C, S2, S, [P, [TLeft | T1]], T, NumarP).
+completeaza(Simbol, SimbolFinal, Sir, SirFinal, ArboreStanga, ArboreFinal, Numar) :-
+    regula(Parinte, NumarParinte, [Numar | Numere], [Simbol | Rest]),
+    parse_lista(Rest, Sir, SirInter, ArboreInter, Numere),
+    completeaza(Parinte, SimbolFinal, SirInter, SirFinal, [Parinte, [ArboreStanga | ArboreInter]], ArboreFinal, NumarParinte).
 
-parse_lista([C|Cs], S1, S, [Y1 | Y2], [Numar | Numere]) :- parse(C, S1, S2, Y1, Numar),
-                                                          parse_lista(Cs, S2, S, Y2, Numere).
-parse_lista([], S, S, [], []).
+parse_lista([Simbol | Simboluri], Sir, SirFinal, [Arbore1 | Arbore2], [Numar | Numere]) :-
+    parse(Simbol, Sir, SirInter, Arbore1, Numar),
+    parse_lista(Simboluri, SirInter, SirFinal, Arbore2, Numere).
+parse_lista([], SirFinal, SirFinal, [], []).
 
 % Regulile gramaticii
 regula(s, Numar, [Numar, Numar], [np, vp]).
