@@ -1,7 +1,7 @@
 % Vlad-Doru Ion
 % Sisteme distribuite
 
-% Problema 5.
+% Problema 7.
 
 parse(Sir, Arbore) :- parse(s, Sir, [], Arbore, _).
 
