@@ -3,40 +3,53 @@
 
 % Problema 11
 
-parse(S, T) :- parse(s, _, S, [], T).
+parse(Sir, Arbore) :- parse(s, _, Sir, [], Arbore).
 
-parse(C, Numar, [X | S1], S, T) :- cuvant(W, Numar, X),
-                                   call(W, C, Numar, S1, S, [W, [X]], T).
+parse(SimbolFinal, Numar, [Cuvant | RestSir], SirFinal, Arbore) :-
+    cuvant(Categorie, Numar, Cuvant),
+    call(Categorie, SimbolFinal, Numar, RestSir, SirFinal, [Categorie, [Cuvant]], Arbore).
 
 % Regulile gramaticii + reguli oprire
-s(s, _, X, X, T, T).
+s(s, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 
-np(np, _, X, X, T, T).
+np(np, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % NP -> NP Conj NP
-np(C, Numar, S1, S, Tup, T) :- parse(conj, Numar, S1, S2, T1), parse(np, Numar, S2, S3, T2), np(C, plural, S3, S, [np, Tup, T1, T2], T).
-% S -> NP VP
-np(C, Numar, S1, S, Tup, T) :- parse(vp, Numar, S1, S2, T1), s(C, Numar, S2, S, [s,  Tup, T1], T).
+np(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(conj, Numar, Sir, Sir1, Arbore1),
+    parse(np, Numar, Sir1, Sir2, Arbore2),
+    np(SimbolFinal, plural, Sir2, SirFInal, [np, Arbore, Arbore1, Arbore2], ArboreFinal).
+% SirFInal -> NP VP
+np(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(vp, Numar, Sir, Sir1, Arbore1),
+    s(SimbolFinal, Numar, Sir1, SirFInal, [s,  Arbore, Arbore1], ArboreFinal).
 
-det(det, _, X, X, T, T).
+det(det, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % NP -> Det N
-det(C, Numar, S1, S, Tup, T) :-
-    parse(n, Numar, S1, S2, T1),
-    np(C, Numar, S2, S, [np, Tup, T1], T).
+det(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(n, Numar, Sir, Sir1, Arbore1),
+    np(SimbolFinal, Numar, Sir1, SirFInal, [np, Arbore, Arbore1], ArboreFinal).
 
-v(v, _, X, X, T, T).
+v(v, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % VP -> V NP
-v(C, Numar, S1, S, Tup, T) :- parse(np, _, S1, S2, T1), vp(C, Numar, S2, S, [vp, Tup, T1], T).
+v(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(np, _, Sir, Sir1, Arbore1),
+    vp(SimbolFinal, Numar, Sir1, SirFInal, [vp, Arbore, Arbore1], ArboreFinal).
 % VP -> V NP PP
-v(C, Numar, S1, S, Tup, T) :- parse(np, _, S1, S2, T1), parse(pp, _, S2, S3, T2), vp(C, Numar, S3, S, [vp, Tup, T1, T2], T).
+v(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(np, _, Sir, Sir1, Arbore1),
+    parse(pp, _, Sir1, Sir2, Arbore2),
+    vp(SimbolFinal, Numar, Sir2, SirFInal, [vp, Arbore, Arbore1, Arbore2], ArboreFinal).
 
-p(p, _, X, X, T, T).
+p(p, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % PP -> P NP
-p(C, _, S1, S, Tup, T) :- parse(np, Numar, S1, S2, T1), pp(C, Numar, S2, S, [pp, Tup, T1], T).
+p(SimbolFinal, _, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(np, Numar, Sir, Sir1, Arbore1),
+    pp(SimbolFinal, Numar, Sir1, SirFInal, [pp, Arbore, Arbore1], ArboreFinal).
 
-vp(vp, _, X, X, T, T).
-n(n, _, X, X, T, T).
-pp(pp, _, X, X, T, T).
-conj(conj, _, X, X, T, T).
+vp(vp, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+n(n, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+pp(pp, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+conj(conj, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 
 % Lexicon
 cuvant(det, _, the).
