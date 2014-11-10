@@ -26,7 +26,7 @@ parse_lista([], S, S, [], []).
 % Regulile gramaticii
 regula(s, Numar, [Numar, Numar], [np, vp]).
 regula(np, Numar, [Numar, Numar], [det, n]).
-regula(np, Numar, [Numar, Numar, Numar], [np, conj, np]).
+regula(np, plural, [Numar, Numar, Numar], [np, conj, np]).
 regula(vp, Numar, [Numar, _], [v, np]).
 regula(vp, Numar, [Numar, _, _], [v, np, pp]).
 regula(pp, Numar, [_, Numar], [p, np]).
