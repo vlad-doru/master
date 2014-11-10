@@ -1,41 +1,56 @@
 % Ion Vlad-Doru
 % Sisteme distribuite
 
-% Problema 11
+% Problema 13
 
-parse(S) :- parse(s, S, []).
+parse(Sir, Arbore) :- parse(s, _, Sir, [], Arbore).
 
-parse(C, [X | S1], S) :- cuvant(W, X),
-                         legatura(W, C),
-                         call(W, C, S1, S).
+parse(SimbolFinal, Numar, [Cuvant | RestSir], SirFinal, Arbore) :-
+    cuvant(Categorie, Numar, Cuvant),
+    legatura(Categorie, SimbolFinal),
+    call(Categorie, SimbolFinal, Numar, RestSir, SirFinal, [Categorie, [Cuvant]], Arbore).
 
 % Regulile gramaticii + reguli oprire
-s(s, X, X).
+s(s, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 
-np(np, X, X).
+np(np, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % NP -> NP Conj NP
-np(C, S1, S) :- parse(conj, S1, S2), parse(np, S2, S3), np(C, S3, S).
-% S -> NP VP
-np(C, S1, S) :- parse(vp, S1, S2), s(C, S2, S).
+np(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(conj, Numar, Sir, Sir1, Arbore1),
+    parse(np, Numar, Sir1, Sir2, Arbore2),
+    np(SimbolFinal, plural, Sir2, SirFInal, [np, Arbore, Arbore1, Arbore2], ArboreFinal).
+% SirFInal -> NP VP
+np(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(vp, Numar, Sir, Sir1, Arbore1),
+    s(SimbolFinal, Numar, Sir1, SirFInal, [s,  Arbore, Arbore1], ArboreFinal).
 
-det(det, X, X).
+det(det, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % NP -> Det N
-det(C, S1, S) :- parse(n, S1, S2), np(C, S2, S).
+det(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(n, Numar, Sir, Sir1, Arbore1),
+    np(SimbolFinal, Numar, Sir1, SirFInal, [np, Arbore, Arbore1], ArboreFinal).
 
-v(v, X, X).
+v(v, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % VP -> V NP
-v(C, S1, S) :- parse(np, S1, S2), vp(C, S2, S).
+v(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(np, _, Sir, Sir1, Arbore1),
+    vp(SimbolFinal, Numar, Sir1, SirFInal, [vp, Arbore, Arbore1], ArboreFinal).
 % VP -> V NP PP
-v(C, S1, S) :- parse(np, S1, S2), parse(pp, S2, S3), vp(C, S3, S).
+v(SimbolFinal, Numar, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(np, _, Sir, Sir1, Arbore1),
+    parse(pp, _, Sir1, Sir2, Arbore2),
+    vp(SimbolFinal, Numar, Sir2, SirFInal, [vp, Arbore, Arbore1, Arbore2], ArboreFinal).
 
-p(p, X, X).
+p(p, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 % PP -> P NP
-p(C, S1, S) :- parse(np, S1, S2), pp(C, S2, S).
+p(SimbolFinal, _, Sir, SirFInal, Arbore, ArboreFinal) :-
+    parse(np, Numar, Sir, Sir1, Arbore1),
+    pp(SimbolFinal, Numar, Sir1, SirFInal, [pp, Arbore, Arbore1], ArboreFinal).
 
-vp(vp, X, X).
-n(n, X, X).
-pp(pp, X, X).
-conj(conj, X, X).
+vp(vp, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+n(n, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+pp(pp, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
+conj(conj, _, SirFinal, SirFinal, ArboreFinal, ArboreFinal).
 
 % Tabela de legaturi.
 legatura(np, s).
@@ -45,20 +60,20 @@ legatura(v, vp).
 legatura(p, pp).
 legatura(X, X).
 % Lexicon
-cuvant(det, the).
-cuvant(det, all).
-cuvant(det, every).
-cuvant(p, near).
-cuvant(conj, and).
-cuvant(n, dog).
-cuvant(n, dogs).
-cuvant(n, cat).
-cuvant(n, cats).
-cuvant(n, elephant).
-cuvant(n, elephants).
-cuvant(v, chase).
-cuvant(v, chases).
-cuvant(v, see).
-cuvant(v, sees).
-cuvant(v, amuse).
-cuvant(v, amuses).
+cuvant(det, _, the).
+cuvant(det, plural, all).
+cuvant(det, singular, every).
+cuvant(p, _, near).
+cuvant(conj, _, and).
+cuvant(n, singular, dog).
+cuvant(n, plural, dogs).
+cuvant(n, singular, cat).
+cuvant(n, plural, cats).
+cuvant(n, singular, elephant).
+cuvant(n, plural, elephants).
+cuvant(v, plural, chase).
+cuvant(v, singular, chases).
+cuvant(v, plural, see).
+cuvant(v, singular, sees).
+cuvant(v, plural, amuse).
+cuvant(v, singular, amuses).
