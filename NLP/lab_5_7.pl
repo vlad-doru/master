@@ -1,48 +1,54 @@
-% Ion Vlad-Doru
-% Sisteme Distribuite
+% Vlad-Doru Ion
+% Sisteme distribuite
 
-% Ex 6
+% Problema 5.
 
-parse(S, T) :- parse(s, S, [], T).
+parse(Sir, Arbore) :- parse(s, Sir, [], Arbore, _).
 
-% Arborele care a fost obtinut pana acum in stanga e [W, Cuvant].
-parse(C, [Cuvant | S2], S, T) :- cuvant(W, Cuvant),
-                                 completeaza(W, C, S2, S, [W, [Cuvant]], T).
+parse(SimbolFinal, [Cuvant | RestSir], SirFinal, Arbore, Numar) :-
+    cuvant(Simbol, Numar, Cuvant),
+    completeaza(Simbol, SimbolFinal, RestSir, SirFinal, [Simbol, [Cuvant]], Arbore, Numar).
 
 % Arborele pe care l-am obtinut trebuie sa fie egal cu arborele final
-completeaza(C, C, S, S, T, T).
+completeaza(SimbolFinal, SimbolFinal, SirFinal, SirFinal, ArboreFinal, ArboreFinal, _).
 % Arborele obtinut din stanga se compune cu arborele obtinut prin parsare
 % top-down si se asigneaza regulei curente.
-completeaza(W, C, S1, S, TLeft, T) :- regula(P, [W | Rest]),
-                            trim(Rest, RestTrimmed),
-                            parse_lista(RestTrimmed, S1, S2, T1),
-                            completeaza(P, C, S2, S, [P, [TLeft | T1]], T).
+completeaza(Simbol, SimbolFinal, Sir, SirFinal, ArboreStanga, ArboreFinal, Numar) :-
+    regula(Parinte, NumarParinte, [Numar | Numere], [Simbol | Rest]),
+    trim(Rest, RestTrimmed),
+    parse_lista(RestTrimmed, Sir, SirInter, ArboreInter, Numere),
+    completeaza(Parinte, SimbolFinal, SirInter, SirFinal, [Parinte, [ArboreStanga | ArboreInter]], ArboreFinal, NumarParinte).
+
 trim([], []).
-trim([P | Y], Z) :- regula(P, []), trim(Y, Z).
+trim([P | Y], Z) :- regula(P, _, [], []), trim(Y, Z).
 trim([P | Y], [P | Z]) :- trim(Y, Z).
 
-parse_lista([C|Cs], S1, S, [Y1 | Y2]) :- parse(C, S1, S2, Y1),
-                              parse_lista(Cs, S2, S, Y2).
-parse_lista([], S, S, []).
+parse_lista([Simbol | Simboluri], Sir, SirFinal, [Arbore1 | Arbore2], [Numar | Numere]) :-
+    parse(Simbol, Sir, SirInter, Arbore1, Numar),
+    parse_lista(Simboluri, SirInter, SirFinal, Arbore2, Numere).
+parse_lista([], SirFinal, SirFinal, [], _).
 
 % Regulile gramaticii
-regula(s, [np, vp]).
-regula(np, [det, n, pp]).
-regula(vp, [v, np]).
-regula(pp, []).
+regula(s, Numar, [Numar, Numar], [np, vp]).
+regula(np, Numar, [Numar, Numar, _], [det, n, pp]).
+regula(vp, Numar, [Numar, _], [v, np]).
+regula(pp, Numar, [_, Numar], [p, np]).
+regula(pp, _, [], []).
 % Cuvinte
-cuvant(det, the).
-cuvant(det, all).
-cuvant(det, every).
-cuvant(n, dog).
-cuvant(n, dogs).
-cuvant(n, cat).
-cuvant(n, cats).
-cuvant(n, elephant).
-cuvant(n, elephants).
-cuvant(v, chase).
-cuvant(v, chases).
-cuvant(v, see).
-cuvant(v, sees).
-cuvant(v, amuse).
-cuvant(v, amuses).
+cuvant(det, _, the).
+cuvant(det, plural, all).
+cuvant(det, singular, every).
+cuvant(p, _, near).
+cuvant(conj, _, and).
+cuvant(n, singular, dog).
+cuvant(n, plural, dogs).
+cuvant(n, singular, cat).
+cuvant(n, plural, cats).
+cuvant(n, singular, elephant).
+cuvant(n, plural, elephants).
+cuvant(v, plural, chase).
+cuvant(v, singular, chases).
+cuvant(v, plural, see).
+cuvant(v, singular, sees).
+cuvant(v, plural, amuse).
+cuvant(v, singular, amuses).
