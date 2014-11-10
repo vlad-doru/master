@@ -1,4 +1,4 @@
-% Vlad-Doru Ion grupa 331
+% Vlad-Doru Ion
 % Sisteme distribuite
 
 % Problema 1.

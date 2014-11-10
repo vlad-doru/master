@@ -1,7 +1,9 @@
-% Ion Vlad-Doru
-% Problema 3
+% Vlad-Doru Ion
+% Sisteme distribuite
 
-% Regula pentru convenienta.
+% Problema 3.
+
+% Regula pentru parsarea mai usoara.
 parse(X, TP) :- parse(X, [s], [], TP).
 
 % Vom folosi o stiva de numere
