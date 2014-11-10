@@ -1,21 +1,26 @@
-% Ion Vlad-Doru
-% Sisteme Distribuite
+% Vlad-Doru Ion
+% Sisteme distribuite
 
-% Ex 4
+% Problema 4.
 
 parse(S) :- parse(s, S, []).
 
-parse(C, [Cuvant | S2], S) :- cuvant(W, Cuvant),
-                              completeaza(W, C, S2, S).
+parse(Simbol, [Cuvant | RestSir], SirFinal) :-
+    cuvant(Categorie, Cuvant),
+    completeaza(Categorie, Simbol, RestSir, SirFinal).
 
-completeaza(C, C, S, S).
-completeaza(W, C, S1, S) :- regula(P, [W | Rest]),
-                            parse_lista(Rest, S1, S2),
-                            completeaza(P, C, S2, S).
+% Regula care spune cand se opreste procesul de completare.
+completeaza(SimbolFinal, SimbolFinal, SirFinal, SirFinal).
 
-parse_lista([C|Cs], S1, S) :- parse(C, S1, S2),
-                              parse_lista(Cs, S2, S).
-parse_lista([], S, S).
+completeaza(Colt, SimbolFinal, Sir, SirFinal) :-
+    regula(Parinte, [Colt | Simboluri]),
+    parse_lista(Simboluri, Sir, SirInter),
+    completeaza(Parinte, SimbolFinal, SirInter, SirFinal).
+
+parse_lista([Simbol | Simboluri], Sir, SirFinal) :-
+    parse(Simbol, Sir, SirInter),
+    parse_lista(Simboluri, SirInter, SirFinal).
+parse_lista([], SirFinal, SirFinal).
 
 % Regulile gramaticii
 regula(s, [np, vp]).
