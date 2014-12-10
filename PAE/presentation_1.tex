@@ -17,63 +17,24 @@
 
 \documentclass{beamer}
 
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[romanian]{babel}
+\usepackage{amsmath}
+\usepackage{listings}
+
+
+
 \mode<presentation> {
 
-% The Beamer class comes with a number of default slide themes
-% which change the colors and layouts of slides. Below this is a list
-% of all the themes, uncomment each in turn to see what they look like.
-
-%\usetheme{default}
-%\usetheme{AnnArbor}
-%\usetheme{Antibes}
-%\usetheme{Bergen}
-%\usetheme{Berkeley}
-%\usetheme{Berlin}
-%\usetheme{Boadilla}
-%\usetheme{CambridgeUS}
-%\usetheme{Copenhagen}
-%\usetheme{Darmstadt}
-%\usetheme{Dresden}
 \usetheme{Frankfurt}
-%\usetheme{Goettingen}
-%\usetheme{Hannover}
-%\usetheme{Ilmenau}
-%\usetheme{JuanLesPins}
-%\usetheme{Luebeck}
-%\usetheme{Madrid}
-%\usetheme{Malmoe}
-%\usetheme{Marburg}
-%\usetheme{Montpellier}
-%\usetheme{PaloAlto}
-%\usetheme{Pittsburgh}
-%\usetheme{Rochester}
-%\usetheme{Singapore}
-%\usetheme{Szeged}
-%\usetheme{Warsaw}
-
-% As well as themes, the Beamer class has a number of color themes
-% for any slide theme. Uncomment each of these in turn to see how it
-% changes the colors of your current slide theme.
-
-%\usecolortheme{albatross}
-%\usecolortheme{beaver}
-%\usecolortheme{beetle}
-%\usecolortheme{crane}
 \usecolortheme{dolphin}
-%\usecolortheme{dove}
-%\usecolortheme{fly}
-%\usecolortheme{lily}
-%\usecolortheme{orchid}
-%\usecolortheme{rose}
-%\usecolortheme{seagull}
-%\usecolortheme{seahorse}
-%\usecolortheme{whale}
-%\usecolortheme{wolverine}
 
 %\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
 %\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
 
-%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
 }
 
 \usepackage{graphicx} % Allows including images
@@ -109,70 +70,147 @@ Universitatea din București \\ % Your institution for the title page
 %----------------------------------------------------------------------------------------
 
 %------------------------------------------------
-\section{First Section} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+\section{Introducere}
 %------------------------------------------------
 
-\subsection{Subsection Example} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
-
 \begin{frame}
-\frametitle{Paragraphs of Text}
-Sed iaculis dapibus gravida. Morbi sed tortor erat, nec interdum arcu. Sed id lorem lectus. Quisque viverra augue id sem ornare non aliquam nibh tristique. Aenean in ligula nisl. Nulla sed tellus ipsum. Donec vestibulum ligula non lorem vulputate fermentum accumsan neque mollis.\\~\\
+\frametitle{Introducere}
+\begin{itemize}
+\item Cuckoo Hashing reprezintă un algoritm de hashing ce a fost descris de Rasmus Pagh și Flemming Friche Rodler în Ianuarie 2002.
+\item Cuckoo Hashing descrie construcția unei tabele de dispersie ce permite regăsirea informației în timp O(1).
+\item În ceea ce privește spațiul folosit de algoritm acesta este apropiat de cel folosit de arborii binari de căutare.
+\item Spre deosebire de algoritmul de hashing dinamic perfect, propus de Dietzfelbinger, a cărui performanță o egalează, Cuckoo hashing propune o implementare elegantă și utilă în scopuri practice.
+\end{itemize}
 
-Sed diam enim, sagittis nec condimentum sit amet, ullamcorper sit amet libero. Aliquam vel dui orci, a porta odio. Nullam id suscipit ipsum. Aenean lobortis commodo sem, ut commodo leo gravida vitae. Pellentesque vehicula ante iaculis arcu pretium rutrum eget sit amet purus. Integer ornare nulla quis neque ultrices lobortis. Vestibulum ultrices tincidunt libero, quis commodo erat ullamcorper id.
 \end{frame}
 
 %------------------------------------------------
+\subsection{Obiective}
 
 \begin{frame}
-\frametitle{Bullet Points}
+\frametitle{Obiective}
 \begin{itemize}
-\item Lorem ipsum dolor sit amet, consectetur adipiscing elit
-\item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
-\item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
-\item Nam cursus est eget velit posuere pellentesque
-\item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
+\item Complexitatea timp a operației de căutare: $\mathcal{O}(1)$
+\item Complexitatea timp a operației de inserare: $\mathcal{O}(1)$ amorizat \footnote{Complexitatea amoritzată ia în considerare o secvență de operații, asigurându-se astfel că cele cu o complexitate ridicată au o frecvență scazută.}
+\item Spațiu utilizat de tabelel de disperise: $\approx 2n$
+\end{itemize}
+
+\begin{block}{Ideea centrală}
+În loc de a alege abordarea clasică, în care algoritmii folosesc o singură funcție de hashing, se vor folosi două funcții de hashing. Astfel, fiecare cheie se va putea afla la doar una din cele două locații indicate de funcțiile alese. 
+\end{block}
+
+Datorită faptului că cele două funcții de hashing sunt independente, accesul la memorie poate fi făcut în mod paralel îmbunătățind performanță practică a algoritmului.
+
+\end{frame}
+%------------------------------------------------
+\subsection{Preliminarii}
+
+\begin{frame}
+\frametitle{Preliminarii}
+\begin{itemize}
+\item Vom considera cheile ca aparținând unei mulțimi $U = {0,1}^w$, unde $w$ reprezintă dimensiunea cuvântului asociat procesorului. În general cheile vor fi elemente întregi reprezentate pe 32 de biți.
+\item Dacă unei chei nu îi corespunde nicio valoare atunci vom nota acest lucru prin simbolul $\bot$.
+\item Algoritmul va folosi cele două funcții de hash alese dintr-o \textit{familie universală}.
+\begin{definition}[Familie universală de funcții de hashing]
+O familie  $h_i, i \in I, h_i:D \to E$  este universală dacă, $\forall k > 0, \forall x_1, x_2 ..., x_k \in U \text{ distincte}, \forall y_1, ..., y_k \in E,$ și $i$ ales uniform peste $I: Pr[h_i(x1) = y1, ..., h_i(x_k) = y_k] \leq \frac{c}{|E|^k}$
+\end{definition}
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------
+\section{Algoritmul}
+
+\begin{frame}
+\frametitle{Descrierea algoritmului}
+\begin{itemize}
+\item Vom folosi două tabele de dispersie, $T1$ și $T2$, de dimensiuni identice. Vom nota dimensiunea acestora cu $r$.
+\item Vom folosi două funcții de hash, $h_1, h_2: U \to \{0, 1, ..., r-1\}$.
+\begin{block}{Stocarea cheilor}
+Fiecare cheie $x$ se va afla fie în celula cu indicele $h1(x)$ al tabelei $T1$, fie în celula cu indicele $h2(x)$ al tabele $T2$, \textbf{dar niciodată în ambele tabele}.
+\end{block}
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{Căutarea și ștergerea unei chei}
+\begin{itemize}
+\item După cum am menționat anterior, o cheie nu se poate afla decât în cele mult unul din tabelele $T1$ și $T2$.
+\begin{block}{Funcția de căutare}
+Funcția de căutare este una trivială astfel:
+\lstset{language = Python, 
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        }
+\begin{lstlisting}
+  def lookup(x):
+   	return T1[h1(x)] == x or T2[h2[x]] == x
+\end{lstlisting}
+\end{block}
+\item Este evident că avem o complexitate timp $\mathcal{O}(1)$, întrucât efectuăm două operații de acces la memorie ce se produc în timp constant.
+\item Pentru ștergerea unei chei putem presupune fară pierderea generalității ca avem o cheie $x$ ce se află în tabelul $T1$. Atunci vom șterge cheia x prim marcarea poziției $h_1(x)$ din T1 ca fiind nefolosita: $T1[h_1(x)] := \bot$
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Inserarea unei chei}
+\begin{itemize}
+\item Vom presupune ca va trebui sa inserăm cheia $x$. Deoarece ea nu poate fi pusă decât la una din pozițiile menționate anterior trebuie găsită o strategie de inserare.
+\begin{block}{Mecanismul de inserare.}
+
+
+\begin{description}
+  \item[Cazul 1] Dacă $T1[h_1(x)] == \bot$ atunci inserăm cheia $x$ la poziția $h1(x)$. STOP.
+  \item[Cazul 2] Dacă $T1[h_1(x)] == y$ atunci inserăm cheia $x$ la poziția $h1(x)$. Iterăm prin a insera cheia $y$ în tabelul T2 folosind același raționament.
+\end{description}
+\end{block}
+
+\item \textit{Observație:} Există posibilitatea de a intra într-un ciclu folosind mecanismul de inserare. De aceea numărul de iterații va fi mărginit de o constantă superioară.
+\item În momentul în care constanta este atinsă vom alege două noi funcții de hashing și vom reinsera toate cheile.
 \end{itemize}
 \end{frame}
-
 %------------------------------------------------
-
 \begin{frame}
-\frametitle{Blocks of Highlighted Text}
-\begin{block}{Block 1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-\end{block}
+\frametitle{Inserarea unei chei}
+\begin{itemize}
+\item În figura de mai jos putem vedea o ilustrare grafică a modului în care se inserează o cheie $x$. În partea stangă se poate observa structura înainte de inserare, iar în partea dreaptă după 
 
-\begin{block}{Block 2}
-Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-\end{block}
+\begin{figure}
+\includegraphics[width=0.4\linewidth]{cuckoo.jpg}
+\end{figure}
 
-\begin{block}{Block 3}
-Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-\end{block}
+\item Săgețile din fiecare cheie reprezintă pozițiile corespunzătoare acestora în tabelele T1 și T2.
+\end{itemize}
 \end{frame}
-
 %------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{Inserarea unei chei}
+\begin{block}{Funcția de inserare}
+\lstset{language = Python, 
+        showstringspaces=false,
+        basicstyle=\ttfamily\small,
+        keywordstyle=\color{blue},
+        }
+\begin{lstlisting}
+  def insert(x):
+  	# Verificam daca cheia exista deja.
+  	if lookup(x):
+  		return
+   	for i in range(MaxLoop):
+   	  T1[h1[x]], x = x, T1[h1[x]]
+   	  if x == None:
+   	    return
+   	  T2[h2[x]], x = x, T2[h2[x]]
+   	  if x == None:
+   	    return
+   	# Daca nu am putut face inserarea
+   	rehash()
+   	insert(x)
+\end{lstlisting}
+\end{block}
 
-\begin{frame}
-\frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-
-\column{.45\textwidth} % Left column and width
-\textbf{Heading}
-\begin{enumerate}
-\item Statement
-\item Explanation
-\item Example
-\end{enumerate}
-
-\column{.5\textwidth} % Right column and width
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-
-\end{columns}
 \end{frame}
-
-%------------------------------------------------
-\section{Second Section}
 %------------------------------------------------
 
 \begin{frame}
@@ -192,57 +230,13 @@ Treatment 3 & 0.0009271 & 0.296 \\
 \end{frame}
 
 %------------------------------------------------
-
 \begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Verbatim}
-\begin{example}[Theorem Slide Code]
-\begin{verbatim}
-\begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}\end{verbatim}
-\end{example}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Figure}
-Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{test}
-%\end{figure}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Citation}
-An example of the \verb|\cite| command to cite within the presentation:\\~
-
-This statement requires citation \cite{p1}.
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{References}
+\frametitle{Referințe}
 \footnotesize{
 \begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[Smith, 2012]{p1} John Smith (2012)
-\newblock Title of the publication
-\newblock \emph{Journal Name} 12(3), 45 -- 678.
+\bibitem[cuckoo]{p1} John Smith (2012)
+\newblock Cuckoo Hashing
+\newblock \emph{Journal of Algorithms} 51(2004), 122 -- 144.
 \end{thebibliography}
 }
 \end{frame}
@@ -250,7 +244,7 @@ This statement requires citation \cite{p1}.
 %------------------------------------------------
 
 \begin{frame}
-\Huge{\centerline{The End}}
+\Huge{\centerline{Mulțumesc}}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
