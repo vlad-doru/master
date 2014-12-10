@@ -112,7 +112,7 @@ Datorită faptului că cele două funcții de hashing sunt independente, accesul
 \item Dacă unei chei nu îi corespunde nicio valoare atunci vom nota acest lucru prin simbolul $\bot$.
 \item Algoritmul va folosi cele două funcții de hash alese dintr-o \textit{familie universală}.
 \begin{definition}[Familie universală de funcții de hashing]
-O familie  $h_i, i \in I, h_i:D \to E$  este universală dacă, $\forall k > 0, \forall x_1, x_2 ..., x_k \in U \text{ distincte}, \forall y_1, ..., y_k \in E,$ și $i$ ales uniform peste $I: Pr[h_i(x1) = y1, ..., h_i(x_k) = y_k] \leq \frac{c}{|E|^k}$
+O familie  $h_i, i \in I, h_i:D \to E$  este $(c,k)$-universală dacă, $\forall k > 0, \forall x_1, x_2 ..., x_k \in U \text{ distincte}, \forall y_1, ..., y_k \in E,$ și $i$ ales uniform peste $I: Pr[h_i(x1) = y1, ..., h_i(x_k) = y_k] \leq \frac{c}{|E|^k}$
 \end{definition}
 \end{itemize}
 
@@ -212,9 +212,54 @@ Funcția de căutare este una trivială astfel:
 
 \end{frame}
 %------------------------------------------------
+\begin{frame}
+\frametitle{Variante de implementare}
+\begin{itemize}
+\item Se pot elabora diferite variante de implementare a acestui algoritm plecând de la diferite observații.
+
+\item O primă variantă are la bază observația că algoritmul incearcă întâi să insereze în tabela T1. Din acest motiv putem folosi tabele de dimensiuni \textbf{asimetrice}, crescând dimensiunea tabelei T1.
+
+\item O altă variantă este aceea de a folosi o singură tabela T de dimensiune $2r$ pentru ambele functii de hashing.
+
+\begin{block}{Observație}
+Pentru eleganță ultimei variante putem considera ca poziții fezabile pentru $x$ locațiile $h_1(x), (h_2(x) - h_1(x)) \mod 2r$. În acest mod putem sări de la o locație la alta folosind funcția $i \to (h_2(x) - i) \mod 2r$. Acest lucru se poate verifica ușor înlocuind pe i cu fiecare din locațiile posibile pentru $x$.
+\end{block}
+
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Analiza complexității}
+\begin{itemize}
+\item Deoarece am concluzionat că operățiile de inserare și ștergere au o complexitate timp de $\mathcal{O}(1)$ vom analiza în cele ce urmează comportamentul operației de inserare care nu este unul trivial.
+
+\begin{lemma}[]
+\footnote{Demonstrația este una complexă și nu face subiectul acestei prezentări.}
+Presupunem că procedura de inserare nu intră într-un ciclu infinit. Atunci pentru orice prefix $x_1, x_2, ..., x_p$ al secvenței de chei mutate de către procedură, există o secvența de \textbf{cel puțin $\frac{p}{3}$} chei consecutive fară repetiții, începând cu cheia $x_1$.
+\end{lemma}.
+
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Analiza complexității}
+\begin{itemize}
+
+\item Lucrarea demonstrează ca probabilitatea de a cauza apelarea procedurii de rehash este de $\mathcal{O}(1/n^2)$
+
+\item În particular fiecare operație de inserție ce este efectuată în cadrul procedurii de rehashing are o probabilitate de succes de $1 - \mathcal{O}(1/n)$
+
+\item Obținem un timp mediu pentru procedura de rehashing de complexitate $\mathcal{O}(n)$ 
+
+\item În cele din urmă combinând primul și al treilea rezultat reiese că pentru fiecare inserție timpul mediu pentru rehashing este de $\mathcal{O}(1/n)$, considerând șî apelare forțată a procedurii de rehashing o dată la $r^2$ inserări.
+
+\item În concluzie am arătat că acest algoritm prezintă o complexitate $\mathcal{O}(1)$ amortizat pentru operația de inserare.
+\end{itemize}
+\end{frame}
+%------------------------------------------------
 
 \begin{frame}
-\frametitle{Table}
+\frametitle{Benchmarking}
 \begin{table}
 \begin{tabular}{l l l}
 \toprule
@@ -228,8 +273,21 @@ Treatment 3 & 0.0009271 & 0.296 \\
 \caption{Table caption}
 \end{table}
 \end{frame}
-
 %------------------------------------------------
+\begin{frame}
+\frametitle{Concluzii}
+\begin{itemize}
+
+\item Am prezentat un algoritm cu complexitate constantă în timp pentru cazul cel mai rău.
+
+\item Algoritmul este unul elegant și simplu de implementat, prezentând mai multe variante ale acestuia.
+
+\item Algoritmul se comportă excelent în practică.
+
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+
 \begin{frame}
 \frametitle{Referințe}
 \footnotesize{
