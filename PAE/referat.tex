@@ -16,6 +16,7 @@
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{graphicx}
+\usepackage{cite}
 
 
 \theoremstyle{remark}
@@ -129,7 +130,13 @@ Vom presupune ca va trebui sa inserăm cheia $x$. Deoarece ea nu poate fi pusă 
 \includegraphics[width=0.4\linewidth]{cuckoo.jpg}
 \end{figure}
 
-Săgețile din fiecare cheie reprezintă pozițiile corespunzătoare acestora în tabelele T1 și T2. Vom prezenta în cele ce urmează codul corespunzător acestei funcții de inserare.
+Săgețile din fiecare cheie reprezintă pozițiile corespunzătoare acestora în tabelele T1 și T2. 
+
+\newpage
+
+\subsection{Implementarea funcției de inserare}
+
+Vom prezenta în cele ce urmează codul corespunzător acestei funcții de inserare.
 
 \begin{verbatim}
   def insert(x):
@@ -173,8 +180,6 @@ Lucrarea originală în care este prezentat algoritmul demonstreaza că probabil
 
 În concluzie am arătat că acest algoritm prezintă o complexitate $\mathcal{O}(1)$ amortizat pentru operație de inserare a unei chei.
 
-\newpage
-
 \section {Concluzii}
 
 În final vom prezenta conluziile obținute bazate pe descrierea și analiza complexității algoritmului de hashing \textit{Cuckoo Hashing}.
@@ -188,5 +193,12 @@ Lucrarea originală în care este prezentat algoritmul demonstreaza că probabil
 \item Algoritmul se comportă excelent în practică.
 
 \end{itemize}
+
+\newpage
+
+\nocite{*}
+
+\bibliography{referat.bib}{}
+\bibliographystyle{plain}
 
 \end{document}
