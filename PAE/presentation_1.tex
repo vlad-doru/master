@@ -85,21 +85,29 @@ Universitatea din București \\ % Your institution for the title page
 \end{frame}
 
 %------------------------------------------------
+\begin{frame}
+\frametitle{Obiective}
+
+\begin{block}{Ideea centrală}
+În loc de a alege abordarea clasică, în care algoritmii folosesc o singură funcție de hashing, se vor folosi două funcții. În plus, se va impune condiția ca fiecare cheie sa se afle la doar una din cele două locații indicate de cele două funcții de hashing.
+\end{block}
+
+
+Datorită constrângerii expuse anterior se va obține în mod evident căutare în timp constant. De asemenea, cele două funcții de hashing sunt independente, iar accesul la memorie poate fi făcut în mod paralel îmbunătățind performanță practică a algoritmului.
+
+\end{frame}
+%------------------------------------------------
 \subsection{Obiective}
 
 \begin{frame}
 \frametitle{Obiective}
 \begin{itemize}
 \item Complexitatea timp a operației de căutare: $\mathcal{O}(1)$
-\item Complexitatea timp a operației de inserare: $\mathcal{O}(1)$ amorizat \footnote{Complexitatea amoritzată ia în considerare o secvență de operații, asigurându-se astfel că cele cu o complexitate ridicată au o frecvență scazută.}
+\item Complexitatea timp a operației de inserare: $\mathcal{O}(1)$ amorizat
 \item Spațiu utilizat de tabelel de disperise: $\approx 2n$
+
+\item Complexitatea amoritzată ia în considerare o secvență de operații, asigurându-se astfel că cele cu o complexitate ridicată au o frecvență scazută.
 \end{itemize}
-
-\begin{block}{Ideea centrală}
-În loc de a alege abordarea clasică, în care algoritmii folosesc o singură funcție de hashing, se vor folosi două funcții de hashing. Astfel, fiecare cheie se va putea afla la doar una din cele două locații indicate de funcțiile alese. 
-\end{block}
-
-Datorită faptului că cele două funcții de hashing sunt independente, accesul la memorie poate fi făcut în mod paralel îmbunătățind performanță practică a algoritmului.
 
 \end{frame}
 %------------------------------------------------
