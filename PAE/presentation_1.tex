@@ -34,7 +34,7 @@
 %\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
 %\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
 
-\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+\setbeamertemplate{headline}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
 }
 
 \usepackage{graphicx} % Allows including images
@@ -84,10 +84,11 @@ Universitatea din București \\ % Your institution for the title page
 
 \end{frame}
 
+
 %------------------------------------------------
 \begin{frame}
-\frametitle{Obiective}
-
+\subsection{Ideea centrală}
+\frametitle{Ideea centrală}
 \begin{block}{Ideea centrală}
 În loc de a alege abordarea clasică, în care algoritmii folosesc o singură funcție de hashing, se vor folosi două funcții. În plus, se va impune condiția ca fiecare cheie sa se afle la doar una din cele două locații indicate de cele două funcții de hashing.
 \end{block}
@@ -126,9 +127,9 @@ O familie  $h_i, i \in I, h_i:D \to E$  este $(c,k)$-universală dacă, $\forall
 
 \end{frame}
 %------------------------------------------------
-\section{Algoritmul}
 
 \begin{frame}
+\section{Descrierea algortimului}
 \frametitle{Descrierea algoritmului}
 \begin{itemize}
 \item Vom folosi două tabele de dispersie, $T1$ și $T2$, de dimensiuni identice. Vom nota dimensiunea acestora cu $r$.
@@ -141,6 +142,7 @@ Fiecare cheie $x$ se va afla fie în celula cu indicele $h1(x)$ al tabelei $T1$,
 \end{frame}
 %------------------------------------------------
 \begin{frame}[fragile]
+\subsection{Căutarea și ștergerea}
 \frametitle{Căutarea și ștergerea unei chei}
 \begin{itemize}
 \item După cum am menționat anterior, o cheie nu se poate afla decât în cele mult unul din tabelele $T1$ și $T2$.
@@ -162,6 +164,7 @@ Funcția de căutare este una trivială astfel:
 \end{frame}
 %------------------------------------------------
 \begin{frame}
+\subsection{Inserarea}
 \frametitle{Inserarea unei chei}
 \begin{itemize}
 \item Vom presupune ca va trebui sa inserăm cheia $x$. Deoarece ea nu poate fi pusă decât la una din pozițiile menționate anterior trebuie găsită o strategie de inserare.
@@ -221,6 +224,7 @@ Funcția de căutare este una trivială astfel:
 \end{frame}
 %------------------------------------------------
 \begin{frame}
+\subsection{Varianta ale agoritmului}
 \frametitle{Variante de implementare}
 \begin{itemize}
 \item Se pot elabora diferite variante de implementare a acestui algoritm plecând de la diferite observații.
@@ -237,14 +241,14 @@ Pentru eleganță ultimei variante putem considera ca poziții fezabile pentru $
 \end{frame}
 %------------------------------------------------
 \begin{frame}
+\subsection{Analiza complexității}
 \frametitle{Analiza complexității}
 \begin{itemize}
 \item Deoarece am concluzionat că operățiile de inserare și ștergere au o complexitate timp de $\mathcal{O}(1)$ vom analiza în cele ce urmează comportamentul operației de inserare care nu este unul trivial.
 
-\begin{lemma}[]
-\footnote{Demonstrația este una complexă și nu face subiectul acestei prezentări.}
-Presupunem că procedura de inserare nu intră într-un ciclu infinit. Atunci pentru orice prefix $x_1, x_2, ..., x_p$ al secvenței de chei mutate de către procedură, există o secvența de \textbf{cel puțin $\frac{p}{3}$} chei consecutive fară repetiții, începând cu cheia $x_1$.
-\end{lemma}.
+\item Vom prezenta rezultatele cheie obținute în analiza complexității, deoarece demonstrația este una extrem de tehnică și nu face subiectul acestei prezentări.
+
+\item Lucrarea inițială demonstrează că numărul mediu de iterații pentru fiecare procedură de inserare este de $\mathcal{O}(1)$, fără a ține cont de procedura de rehashing care este apelată.
 
 \end{itemize}
 \end{frame}
@@ -253,36 +257,20 @@ Presupunem că procedura de inserare nu intră într-un ciclu infinit. Atunci pe
 \frametitle{Analiza complexității}
 \begin{itemize}
 
-\item Lucrarea demonstrează ca probabilitatea de a cauza apelarea procedurii de rehash este de $\mathcal{O}(1/n^2)$
+\item Se demonstrează că probabilitatea de a cauza apelarea procedurii de rehash este de $\mathcal{O}(1/n^2).$
 
 \item În particular fiecare operație de inserție ce este efectuată în cadrul procedurii de rehashing are o probabilitate de succes de $1 - \mathcal{O}(1/n)$
 
-\item Obținem un timp mediu pentru procedura de rehashing de complexitate $\mathcal{O}(n)$ 
+\item Cum inserarea are timp $\mathcal{O}(1)$, obținem un timp mediu pentru procedura de rehashing de complexitate $\mathcal{O}(n)$. 
 
-\item În cele din urmă combinând primul și al treilea rezultat reiese că pentru fiecare inserție timpul mediu pentru rehashing este de $\mathcal{O}(1/n)$, considerând șî apelare forțată a procedurii de rehashing o dată la $r^2$ inserări.
+\item În cele din urmă combinând primul și al treilea rezultat reiese că \textbf{pentru fiecare inserție} timpul mediu pentru rehashing este de $\mathcal{O}(1/n)$, considerând șî apelarea forțată a procedurii de rehashing o dată la $r^2$ inserări.
 
 \item În concluzie am arătat că acest algoritm prezintă o complexitate $\mathcal{O}(1)$ amortizat pentru operația de inserare.
 \end{itemize}
 \end{frame}
 %------------------------------------------------
-
 \begin{frame}
-\frametitle{Benchmarking}
-\begin{table}
-\begin{tabular}{l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\caption{Table caption}
-\end{table}
-\end{frame}
-%------------------------------------------------
-\begin{frame}
+\section{Concluzii}
 \frametitle{Concluzii}
 \begin{itemize}
 
@@ -300,9 +288,13 @@ Treatment 3 & 0.0009271 & 0.296 \\
 \frametitle{Referințe}
 \footnotesize{
 \begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[cuckoo]{p1} John Smith (2012)
+\bibitem[cuckoo]{p1}  R. Pagh and F. F. Rodler (2002)
 \newblock Cuckoo Hashing
 \newblock \emph{Journal of Algorithms} 51(2004), 122 -- 144.
+\bibitem[cuckoo]{p1} R.Pagh (2006)
+\newblock Cuckoo Hashing for Undergraduates
+\bibitem[cuckoo]{p1} Wikipedia (2014)
+\newblock Cuckoo Hashing
 \end{thebibliography}
 }
 \end{frame}

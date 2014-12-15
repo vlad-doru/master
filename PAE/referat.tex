@@ -42,15 +42,13 @@
 
 \section{Introducere}
 
-Cuckoo Hashing este numele unui un algoritm de hashing ce a fost descris de Rasmus Pagh și Flemming Friche Rodler în Ianuarie 2002. Numele acestui provine de la pasărea \textit{Cuckoo} care împinge celalte ouă afară din cuib după ce a spart oul său. Acest proces reprezintă o analogie pentru algoritmul de inserare pe care îl vom prezenta.
-
-Algoritmul descrie construcția unei tabele de dispersie ce permite regăsirea informației în complexitate timp \o1. În ceea ce privește complexitatea spațiu a algoritmului aceasta este apropiată de ce a arborilor binari de căutare.
+Cuckoo Hashing este numele unui un algoritm de hashing ce a fost descris de Rasmus Pagh și Flemming Friche Rodler în ianuarie 2002. Numele acestuia provine de la pasărea \textit{Cuckoo} care împinge celelalte ouă afară din cuib după ce a spart oul său. Acest proces reprezintă o analogie pentru modul de inserare al cheilor pe care îl vom prezenta.
 
 Spre deosebire de algoritmul de hashing dinamic perfect, propus de Dietzfelbinger, a cărui performanță o egalează în ceea ce privește complexitatea timp, Cuckoo hashing propune o implementare elegantă și care se dovedește a fi foarte utilă în practică.
 
 \subsection {Obiective}
 
-Vom enumera obiectivele pe care le urmărește algoritmul pentru a le putea observa în construcția algoritmului.
+Algoritmul își propune o serie de obiective esențiale pe care dorește să le atingă. Le vom enumera pe cele mai importante:
 \begin{itemize}
 \item Complexitatea timp a operației de căutare: $\mathcal{O}(1)$
 \item Complexitatea timp a operației de inserare: $\mathcal{O}(1)$ amorizat\footnote{Complexitatea amoritzată ia în considerare cazul cel mai rău pe o secvență de operații, asigurându-se astfel că cele cu o complexitate ridicată au o frecvență scazută.}
@@ -104,14 +102,6 @@ Este evident că avem o complexitate timp $\mathcal{O}(1)$ deoarece efectuăm do
 
 Pentru ștergerea unei chei putem presupune fară pierderea generalității ca avem o cheie $x$ ce se află în tabelul $T1$. Atunci vom șterge cheia x prim marcarea poziției $h_1(x)$ din T1 ca fiind nefolosita: $T1[h_1(x)] := \bot$. Funcția de ștergere urmează același raționament.
 
-\begin{verbatim}
-  def erase(x):
-    if T1[h1(x)] == x:
-   	  T1[h1(x)] = None
-   	if T2[h2[x]] == x:
-   	  T2[h2(x) = None
-\end{verbatim}
-
 \subsection{Inserarea unei chei}
 
 Vom presupune ca va trebui sa inserăm cheia $x$. Deoarece ea nu poate fi pusă decât la una din pozițiile menționate anterior trebuie găsită o strategie de inserare în concordanță cu această constrângere.
@@ -127,12 +117,14 @@ Vom presupune ca va trebui sa inserăm cheia $x$. Deoarece ea nu poate fi pusă 
 În figura de mai jos putem vedea o ilustrare grafică a modului în care se inserează o cheie $x$. În partea stangă se poate observa structura înainte de inserare, iar în partea dreaptă după.
 
 \begin{figure}[h]
+\begin{center}
 \includegraphics[width=0.4\linewidth]{cuckoo.jpg}
+\end{center}
+\caption{A picture of a gull.}
+\centering
 \end{figure}
 
 Săgețile din fiecare cheie reprezintă pozițiile corespunzătoare acestora în tabelele T1 și T2. 
-
-\newpage
 
 \subsection{Implementarea funcției de inserare}
 
@@ -169,14 +161,9 @@ Pentru eleganță ultimei variante putem considera ca poziții fezabile pentru $
 
 Deoarece am concluzionat că operățiile de inserare și ștergere au o complexitate timp de $\mathcal{O}(1)$ vom analiza în cele ce urmează comportamentul operației de inserare care nu este unul trivial.
 
-\begin{lemma}
-\footnote{Demonstrația este una complexă și nu face subiectul acestei prezentări.}
-Presupunem că procedura de inserare nu intră într-un ciclu infinit. Atunci pentru orice prefix $x_1, x_2, ..., x_p$ al secvenței de chei mutate de către procedură, există o secvența de \textbf{cel puțin $\frac{p}{3}$} chei consecutive fară repetiții, începând cu cheia $x_1$.
-\end{lemma}.
-
 Lucrarea originală în care este prezentat algoritmul demonstreaza că probabilitatea de a cauza apelarea procedurii de rehash este de $\mathcal{O}(1/n^2)$. În particular fiecare operație de inserție ce este efectuată în cadrul procedurii de rehashing are o probabilitate de succes de $1 - \mathcal{O}(1/n)$. Obținem astfel un timp mediu pentru procedura de rehashing de complexitate $\mathcal{O}(n)$ 
 
-În cele din urmă combinând rezultatele expuse reiese că pentru fiecare inserție timpul mediu pentru rehashing este de $\mathcal{O}(1/n)$, considerând șî apelare forțată a procedurii de rehashing o dată la $r^2$ inserări.
+În cele din urmă combinând rezultatele expuse reiese că pentru fiecare inserție timpul mediu pentru rehashing este de $\mathcal{O}(1/n)$, considerând șî apelarea forțată a procedurii de rehashing o dată la $r^2$ inserări.
 
 În concluzie am arătat că acest algoritm prezintă o complexitate $\mathcal{O}(1)$ amortizat pentru operație de inserare a unei chei.
 
