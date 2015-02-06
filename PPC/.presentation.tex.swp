@@ -351,31 +351,20 @@ based method.
 \end{frame}
 %------------------------------------------------
 \begin{frame}
-\frametitle{Advantages of the hybrid method}
-\begin{itemize}
-
-\item Se demonstrează că probabilitatea de a cauza apelarea procedurii de rehash este de $\mathcal{O}(1/n^2).$
-
-\item În particular fiecare operație de inserție ce este efectuată în cadrul procedurii de rehashing are o probabilitate de succes de $1 - \mathcal{O}(1/n)$
-
-\item Cum inserarea are timp $\mathcal{O}(1)$, obținem un timp mediu pentru procedura de rehashing de complexitate $\mathcal{O}(n)$. 
-
-\item În cele din urmă combinând primul și al treilea rezultat reiese că \textbf{pentru fiecare inserție} timpul mediu pentru rehashing este de $\mathcal{O}(1/n)$, considerând șî apelarea forțată a procedurii de rehashing o dată la $r^2$ inserări.
-
-\item În concluzie am arătat că acest algoritm prezintă o complexitate $\mathcal{O}(1)$ amortizat pentru operația de inserare.
-\end{itemize}
+\frametitle{Results}
+\includegraphics[scale=0.27]{results1.png}
+\includegraphics[scale=0.27]{results2.png}
 \end{frame}
 %------------------------------------------------
 \begin{frame}
-\section{Concluzii}
-\frametitle{Concluzii}
+\section{Conclusions}
+\frametitle{Conclusions}
 \begin{itemize}
 
-\item Am prezentat un algoritm cu complexitate constantă în timp pentru cazul cel mai rău.
-
-\item Algoritmul este unul elegant și simplu de implementat, prezentând mai multe variante ale acestuia.
-
-\item Algoritmul se comportă excelent în practică.
+\item The multi-core CPU methodology is simple to apply yet efficient in utilizing memory bandwidth.
+\item The method outperforms the state-of-the-art method by up to 45\%, with the performance gap widening as the graph size grows.
+\item We also propose a hybrid method
+that dynamically chooses the best implementation for each BFS-level iteration–such a method benefits both large and small graphs while preventing poor worst case performance.
 
 \end{itemize}
 \end{frame}
@@ -385,13 +374,9 @@ based method.
 \frametitle{Referințe}
 \footnotesize{
 \begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[cuckoo]{p1}  R. Pagh and F. F. Rodler (2002)
-\newblock Cuckoo Hashing
-\newblock \emph{Journal of Algorithms} 51(2004), 122 -- 144.
-\bibitem[cuckoo]{p1} R.Pagh (2006)
-\newblock Cuckoo Hashing for Undergraduates
-\bibitem[cuckoo]{p1} Wikipedia (2014)
-\newblock Cuckoo Hashing
+\bibitem[cuckoo]{p1} Sungpack Hong, Tayo Oguntebi and Kungle Olukotun
+\newblock Efficient Parllel Graph Exploration on Multi-Core CPU and GPU.
+\newblock \emph{Stanford Unifersity} (2011)
 \end{thebibliography}
 }
 \end{frame}
