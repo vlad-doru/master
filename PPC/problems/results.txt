@@ -1,0 +1,19 @@
+CENTRALIZED
+input_10.txt
+Time elapsed is 1.18
+input_11.txt
+Time elapsed is 2.63
+input_12.txt
+Time elapsed is 19.23
+input_9.txt
+Time elapsed is 1.04
+DECENTRALIZED
+input_10.txt
+Time elapsed is 1.02
+input_11.txt
+Time elapsed is 1.19
+input_12.txt
+Time elapsed is 2.22
+input_9.txt
+Time elapsed is 1.02
+
