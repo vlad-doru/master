@@ -13,7 +13,7 @@ import Control.Concurrent
 import System.Environment
 import System.IO
 
-data Message = Line String | Stop
+type Message = Maybe String
 
 master :: String -> (Chan Message) -> (MVar Integer) -> IO ()
 master file c m = do
@@ -26,10 +26,10 @@ master file c m = do
   where 
     putMessage contents 
       | contents == [] = do
-          writeChan c Stop
+          writeChan c Nothing
           print "Finished streaming."
       | otherwise = do
-          writeChan c (Line (head contents))
+          writeChan c (Just (head contents))
           putMessage $ tail contents
 
 worker :: (Chan Message) -> (MVar Integer) -> IO ()
@@ -37,8 +37,8 @@ worker c m = loop 0 where
   loop i = do
     s <- readChan c
     case s of
-      Stop -> putMVar m i 
-      (Line _) -> loop (i + 1) 
+      Nothing -> putMVar m i 
+      (Just _) -> loop (i + 1) 
   
 
 main = do
