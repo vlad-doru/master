@@ -1,5 +1,6 @@
 import Control.Concurrent
 import Control.Concurrent.STM
+import Control.Concurrent.Async
 import Control.Monad
 
 -- Will have deposit, withdraw, transfer and showBalance.
@@ -35,9 +36,10 @@ transfer a b value =
 main = do
   a <- newAccount 1000
   b <- newAccount 1000
-  forkIO $ transfer a b 300
-  forkIO $ transfer b a 500
-  threadDelay $ 10^6
+  a1 <- async $ transfer a b 300
+  a2 <- async $ transfer b a 500
+  wait a1 
+  wait a2
   showBalance a
   showBalance b
 
