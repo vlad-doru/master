@@ -1,16 +1,21 @@
 import Control.Concurrent
+import Control.Exception
 import Control.Monad
 import Network
 import System.IO
+import System.IO.Error
 import Text.Read
 import Text.Printf
+
+handler :: IOError -> IO ()
+handler e = putStrLn $ "Whoops: " ++ (ioeGetErrorString e)
 
 talk :: Handle -> IO ()
 talk h = do
   hSetBuffering h LineBuffering
   loop where
   loop = do
-    l <- hGetLine h
+    l <- hGetLine h 
     if 
       l == "end"
     then 
@@ -33,7 +38,7 @@ main = do
   forever $ do
     (handle, host, port) <- accept sock
     printf "Accepted connection from %s:%s\n" host (show port)
-    forkIO $ talk handle
+    forkIO $ talk handle `catch` handler
 
 
   
