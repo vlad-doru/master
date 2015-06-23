@@ -25,7 +25,7 @@ solveFib n l = do
   as <- mapM (\l -> async $ solvePartition l) ls
   -- Wait for all partitions to be solved
   solutions <- mapM wait as
-  mapM_ (\s -> putStrLn (show s)) (concat solutions)
+  mapM_ (\s -> putStrLn (show s)) (zip l (concat solutions))
   return ()
 
 main = do
