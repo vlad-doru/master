@@ -1,6 +1,6 @@
 map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
 map2 f x y 
-  | length x == length y = map (\(m, n) -> f m n) (zip x y)
+  | length x == length y = map (uncurry f) (zip x y)
   | otherwise = error "Lungimi diferite ale lsitelor."
 
 main = do
