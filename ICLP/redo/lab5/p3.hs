@@ -5,11 +5,17 @@ import Control.Concurrent.STM
 import System.Random
 
 type Restaurant = TVar Int
+type RestCoada = QSem 
 
 newRestaurant :: Int -> IO Restaurant 
 newRestaurant size= atomically $ do
     r <- newTVar size
     return r
+
+newRestCoada :: Int -> IO RestCoada
+newRestCoada size = do
+  r <- newQSem size
+  return r
 
 takeSeat :: Restaurant -> IO ()
 takeSeat r = atomically $ do
@@ -35,9 +41,18 @@ client r index = do
   releaseSeat r
   putStrLn $ "Client " ++ (show index) ++ " finished eating."
 
+clientCoada :: RestCoada -> Int -> IO ()
+clientCoada r index = do 
+  waitQSem r 
+  putStrLn $ "Client " ++ (show index) ++ " started to eat."
+  dineTime <- randomRIO(1, 5)
+  threadDelay $ dineTime * (10 ^ 6)
+  signalQSem r
+  putStrLn $ "Client " ++ (show index) ++ " finished eating."
+
 main = do
   print "Hello"
-  r <- newRestaurant 10
-  as <- mapM (async . (client r)) [1..20]
+  r <- newRestCoada 10
+  as <- mapM (async . (clientCoada r)) [1..20]
   mapM_ wait as
   print "Closing.."
