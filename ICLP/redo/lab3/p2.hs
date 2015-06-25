@@ -1,5 +1,6 @@
 import Control.Concurrent.Async
 import Control.Concurrent
+import Control.Parallel.Strategies
 import Control.Monad
 import Data.Maybe
 import Data.List.Split
@@ -27,6 +28,15 @@ solveFile ls np = do
   let solutions = concat tasks
   return $ zip ns solutions
 
+solvePar :: [String] -> Int -> [(Int, Int)]
+solvePar ls n = runEval $ do
+  let parts = chunksOf ((length ls) `quot` n) (map (\x -> read x :: Int) ls)
+  sparks <- mapM (\p -> rpar $ map fib p ) parts 
+  tasks <- mapM rseq sparks
+  let solutions = concat tasks
+  return $ zip (concat parts) solutions
+
+
 
 main = do
   [file, arg] <- getArgs 
@@ -38,9 +48,11 @@ main = do
     let partitions = fromJust n
     contents <- readFile(file)
     let ls = lines contents
-    solutions <- solveFile ls partitions
-    mapM_ (\s -> print s) solutions
-    print $ "Computed using " ++ (show partitions) ++ " partitions."
+    {-solutions <- solveFile ls partitions-}
+    let solutions = solvePar ls partitions
+    {-mapM_ (\s -> print s) solutions-}
+    {-print $ "Computed using " ++ (show partitions) ++ " partitions."-}
+    print "Done"
 
 
 
