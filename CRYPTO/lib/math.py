@@ -1,4 +1,5 @@
 import fractions
+import itertools
 
 def gcd(a, b):
     return fractions.gcd(a, b)
@@ -19,6 +20,19 @@ def modinv(a, m):
     else:
         return x % m
 
+def chinese_remainder(n, a):
+    sum = 0
+    prod = reduce(lambda a, b: a*b, n)
+
+    for n_i, a_i in zip(n, a):
+        p = prod / n_i
+        sum += a_i * modinv(p, n_i) * p
+        print("Termenul ", a_i, modinv(p, n_i), p)
+    return sum % prod
+
+def all_chinese_solutions(n, a):
+    print(itertools.product(a))
+
 def pow(a, b, m):
     result = 1
     pow_value = a
@@ -28,4 +42,16 @@ def pow(a, b, m):
         b = b >> 1
         pow_value = (pow_value * pow_value) % m
     return result
-        
+
+def primes_sieve(limit):
+    limitn = limit+1
+    not_prime = set()
+    primes = []
+
+    for i in range(2, limitn):
+        if i in not_prime:
+            continue
+        for f in range(i*2, limitn, i):
+            not_prime.add(f)
+        primes.append(i)
+    return primes
