@@ -1,5 +1,6 @@
 import fractions
 import itertools
+import math
 
 def gcd(a, b):
     return fractions.gcd(a, b)
@@ -55,3 +56,6 @@ def primes_sieve(limit):
             not_prime.add(f)
         primes.append(i)
     return primes
+
+def fact(n):
+    return math.factorial(n)
