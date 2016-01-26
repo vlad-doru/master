@@ -1,6 +1,7 @@
 import fractions
 import itertools
-import math
+import numpy
+import functools
 
 def gcd(a, b):
     return fractions.gcd(a, b)
@@ -23,16 +24,13 @@ def modinv(a, m):
 
 def chinese_remainder(n, a):
     sum = 0
-    prod = reduce(lambda a, b: a*b, n)
+    prod = functools.reduce(lambda a, b: a*b, n)
 
     for n_i, a_i in zip(n, a):
         p = prod / n_i
         sum += a_i * modinv(p, n_i) * p
         print("Termenul ", a_i, modinv(p, n_i), p)
     return sum % prod
-
-def all_chinese_solutions(n, a):
-    print(itertools.product(a))
 
 def pow(a, b, m):
     result = 1
@@ -58,4 +56,38 @@ def primes_sieve(limit):
     return primes
 
 def fact(n):
-    return math.factorial(n)
+    return numpy.math.factorial(n)
+
+def sqrt(n):
+    return numpy.sqrt(n)
+
+def solve_quadratic(a, b, c):
+    d = b**2-4*a*c # discriminant
+
+    if d < 0:
+        print ("This equation has no real solution")
+    elif d == 0:
+        x = (-b+sqrt(b**2-4*a*c))/2*a
+        print ("This equation has one solutions: "), x
+        return x
+    else:
+        x1 = (-b+sqrt((b**2)-(4*(a*c))))/(2*a)
+        x2 = (-b-sqrt((b**2)-(4*(a*c))))/(2*a)
+        print ("This equation has two solutions: ", x1, " or", x2)
+        return x1, x2
+
+def is_prime(n):
+    i = 2
+    while i * i <= n:
+        if n % i == 0:
+            return False
+        i += 1
+    return True
+
+def all_chinese_solutions(n, ais):
+    sols = []
+    for a in itertools.product(*ais):
+        sol = chinese_remainder(n, a)
+        print("Sistemul " + str(a) + " cu solutia " + str(sol))
+        sols.append(sol)
+    return sols
