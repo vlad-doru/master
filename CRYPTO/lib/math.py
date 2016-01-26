@@ -35,6 +35,7 @@ def chinese_remainder(n, a):
 def pow(a, b, m):
     result = 1
     pow_value = a
+    b = int(b)
     while b > 0:
         if b & 1 :
             result = (result * pow_value) % m
@@ -91,3 +92,16 @@ def all_chinese_solutions(n, ais):
         print("Sistemul " + str(a) + " cu solutia " + str(sol))
         sols.append(sol)
     return sols
+
+def factorization(n):
+    assert (n == int(n) and n > 0)
+    d, p = (2, 0)
+    while n != 1:
+        while n % d == 0:
+            p += 1
+            n /= d
+        if p > 0:
+            print ("%d^%d" % (d, p))
+            p = 0
+        d += 1
+
