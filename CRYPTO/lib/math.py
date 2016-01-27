@@ -105,3 +105,21 @@ def factorization(n):
             p = 0
         d += 1
 
+def determinant(ma, p):
+    det = int(numpy.rint(numpy.linalg.det(ma))) % p
+    return det
+
+def solveByCramer(ma, b, p):
+    det = determinant(ma, p)
+    inv_det = modinv(det, p)
+    sols = []
+    for i in range(len(ma)):
+        mc = ma.copy()
+        mc[:, i] = b[:, 0]
+        det_mc = determinant(mc, p)
+        sol = (det_mc * inv_det) % p
+        sols.append(sol)
+    s = numpy.matrix(sols).transpose()
+    # Make sure we correctly solved the system
+    assert(numpy.count_nonzero(((ma * s) % p) - b) == 0)
+    return sols
