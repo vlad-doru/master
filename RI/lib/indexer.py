@@ -13,7 +13,6 @@ from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 
 class Indexer(object):
-
     """Used to index files from a specified folder using Apache Lucene."""
 
     def __init__(self, contentDir, indexDir):
@@ -29,20 +28,20 @@ class Indexer(object):
 
         indexStore = SimpleFSDirectory(java.io.File(self.__indexDir))
         config = IndexWriterConfig(Version.LUCENE_CURRENT, RomanianAnalyzer())
+        # Always create a fresh index.
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
         self.__indexWriter = IndexWriter(indexStore, config)
 
         # Init the name field type.
         self.__nameField = FieldType()
         self.__nameField.setIndexed(True)
         self.__nameField.setStored(True)
-        self.__nameField.setTokenized(False)
-        self.__nameField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)
+        self.__nameField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
         # Init the path field type.
         self.__pathField = FieldType()
         self.__pathField.setIndexed(True)
-        self.__pathField.setStored(False)
-        self.__pathField.setTokenized(True)
-        self.__pathField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
+        self.__pathField.setStored(True)
+        self.__pathField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)
     
     def indexDocs(self):
         """Start indexing docs in the self.__contentDir folder."""
@@ -60,7 +59,10 @@ class Indexer(object):
                     self.indexDoc(rel_path, filename, contents)
                 except Exception as e:
                     log.error("Unexpected error when adding to index: {0}".format(e.message()))
+        log.info("Commiting the index.")
+        log.info("We have {0} documents indexed.".format(self.__indexWriter.numDocs()))
         self.__indexWriter.commit()
+        log.info("Closing the index.")
         self.__indexWriter.close()
 
     def indexDoc(self, path, filename, contents):
@@ -70,7 +72,8 @@ class Indexer(object):
         log.info("Added the name field: {0}".format(filename))
         log.info("Added the path field: {0}".format(path))
         if len(contents) > 0:
+	    log.info("Added the contents field: {0}".format(path))
             doc.add(Field("contents", contents, Field.Store.YES, Field.Index.ANALYZED))
         else:
-            log.warning("No content in {0}".filename)
-            self.__indexWriter.addDocument(doc)
+            log.warning("No contents for {0}".filename)
+	self.__indexWriter.addDocument(doc)
