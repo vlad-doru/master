@@ -31,7 +31,7 @@ def parseArgs(command):
     options, args = parser.parse_args(command)
     return options
 
-def run(index):
+def search(index):
     indexStore = SimpleFSDirectory(java.io.File(index))
     searcher = IndexSearcher(DirectoryReader.open(indexStore))
     analyzer = RomanianAnalyzer()
@@ -71,7 +71,7 @@ def main():
     log.info("Starting the Lucene VM. Using version: {0}".format(lucene.VERSION))
     lucene.initVM()
 
-    run(index_path)
+    search(index_path)
 
 if __name__ == '__main__':
     main()
