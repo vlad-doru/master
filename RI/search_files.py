@@ -14,14 +14,12 @@ import sys
 import java.io
 
 from org.apache.lucene.analysis.ro import RomanianAnalyzer
-from org.apache.lucene.document import Document, Field, FieldType
-from org.apache.lucene.index import FieldInfo, IndexWriter, IndexWriterConfig
-from org.apache.lucene.store import SimpleFSDirectory
-from org.apache.lucene.util import Version
-from org.apache.lucene.search import IndexSearcher
-from org.apache.lucene.search.highlight import Highlighter, TokenSources, QueryScorer, SimpleHTMLFormatter, SimpleFragmenter
 from org.apache.lucene.index import DirectoryReader
 from org.apache.lucene.queryparser.classic import QueryParser
+from org.apache.lucene.search import IndexSearcher
+from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleHTMLFormatter 
+from org.apache.lucene.store import SimpleFSDirectory
+from org.apache.lucene.util import Version
 
 def parseArgs(command):
     """Defines and parses command line arguments.
@@ -37,31 +35,30 @@ def run(index):
     indexStore = SimpleFSDirectory(java.io.File(index))
     searcher = IndexSearcher(DirectoryReader.open(indexStore))
     analyzer = RomanianAnalyzer()
+    print("Please type nothing to exit.")
     while True:
-        print "-" * 60
-        print "Hit enter with no input to quit."
-        command = raw_input("Query:")
-        if command == '':
+        print("#" * 10)
+        query_input = raw_input("NEW QUERY:")
+        if query_input == "":
             return
  
-        print
-        print "Searching for:", command
-        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(command)
-        highlighter = Highlighter(SimpleHTMLFormatter("<< ", " >>"), QueryScorer(query))
-        highlighter.setTextFragmenter(SimpleFragmenter(25))
-        print query
+        print("Searching for {0}".format(query_input))
+        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(query_input)
+        highlighter = Highlighter(SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
         hits = searcher.search(query, 50)
-        print "%s total matching documents." % hits.totalHits, "\n"
+        print("{0} total matching documents.".format(hits.totalHits))
  
-        for hit in hits.scoreDocs:
+        for index, hit in enumerate(hits.scoreDocs):
             doc = searcher.doc(hit.doc)
             contents = doc.get("contents")
-            print 'path:', doc.get("path"), 'name:', doc.get("name"), "score:", hit.score
-            print '------++++++++++++++++++++++++++++++++++++++++++--------'
+            print("#Document {0}".format(index + 1))
+            print("Path: {0}".format(doc.get("path")))
+            print("Name: {0}".format(doc.get("name")))
+            print("Score: {0}".format(hit.score))
             tokenStream = analyzer.tokenStream("contents", java.io.StringReader(contents))
-            t = [f.toString().encode('utf-8') for f in highlighter.getBestTextFragments(tokenStream, contents, True, 2) if f.getScore()]
-            print ' ... '.join(t).replace('\n', ' ')
-            print ""
+            for fragment in highlighter.getBestTextFragments(tokenStream, contents, True, 1):
+                print(fragment.toString().strip())
+            print("-" * 10)
  
 def main():
     # Parse the command line arguments.
