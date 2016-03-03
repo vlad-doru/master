@@ -27,6 +27,7 @@ class Indexer(object):
             os.mkdir(self.__indexDir)
 
         indexStore = SimpleFSDirectory(java.io.File(self.__indexDir))
+        # We use the Romanian Analyzer.
         config = IndexWriterConfig(Version.LUCENE_CURRENT, RomanianAnalyzer())
         # Always create a fresh index.
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
@@ -42,23 +43,29 @@ class Indexer(object):
         self.__pathField.setIndexed(True)
         self.__pathField.setStored(True)
         self.__pathField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)
-    
+
     def indexDocs(self):
         """Start indexing docs in the self.__contentDir folder."""
         for root, dirnames, filenames in os.walk(self.__contentDir):
             for filename in filenames:
                 path = os.path.join(root, filename)
                 rel_path = os.path.join(os.path.relpath(root, self.__contentDir), filename)
+                print("-" * 20)
                 log.info("Indexing file: {0}".format(rel_path))
                 contents = ""
+                # Try to read from .html, .txt, .docx, .pdf
                 try:
                     contents = textract.process(path)
+                    log.info("Sucessfully read contents from file {0}".format(filename))
                 except Exception as e:
                     log.error("Unexpected error when reading file {1}: {0}".format(filename, e.message()))
+                # Try to index the document.
                 try:
                     self.indexDoc(rel_path, filename, contents)
                 except Exception as e:
                     log.error("Unexpected error when adding to index: {0}".format(e.message()))
+                # Print newline to look better.
+        print("-" * 20)
         log.info("Commiting the index.")
         log.info("We have {0} documents indexed.".format(self.__indexWriter.numDocs()))
         self.__indexWriter.commit()
@@ -68,12 +75,12 @@ class Indexer(object):
     def indexDoc(self, path, filename, contents):
         doc = Document()
         doc.add(Field("name", filename, self.__nameField))
-        doc.add(Field("path", path, self.__pathField))
         log.info("Added the name field: {0}".format(filename))
+        doc.add(Field("path", path, self.__pathField))
         log.info("Added the path field: {0}".format(path))
         if len(contents) > 0:
-	    log.info("Added the contents field: {0}".format(path))
+	    log.info("Added the contents field for {0}".format(path))
             doc.add(Field("contents", contents, Field.Store.YES, Field.Index.ANALYZED))
         else:
             log.warning("No contents for {0}".filename)
-	self.__indexWriter.addDocument(doc)
+    	self.__indexWriter.addDocument(doc)
