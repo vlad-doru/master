@@ -17,7 +17,7 @@ from org.apache.lucene.analysis.ro import RomanianAnalyzer
 from org.apache.lucene.index import DirectoryReader
 from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.search import IndexSearcher
-from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleHTMLFormatter 
+from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleHTMLFormatter
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 
@@ -34,6 +34,7 @@ def parseArgs(command):
 def search(index):
     indexStore = SimpleFSDirectory(java.io.File(index))
     searcher = IndexSearcher(DirectoryReader.open(indexStore))
+    # Again, we use the Romanian Analyzer.
     analyzer = RomanianAnalyzer()
     print("Please type nothing to exit.")
     while True:
@@ -41,13 +42,13 @@ def search(index):
         query_input = raw_input("NEW QUERY:")
         if query_input == "":
             return
- 
+
         print("Searching for {0}".format(query_input))
         query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(query_input)
         highlighter = Highlighter(SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
         hits = searcher.search(query, 50)
         print("{0} total matching documents.".format(hits.totalHits))
- 
+
         for index, hit in enumerate(hits.scoreDocs):
             doc = searcher.doc(hit.doc)
             contents = doc.get("contents")
@@ -59,7 +60,7 @@ def search(index):
             for fragment in highlighter.getBestTextFragments(tokenStream, contents, True, 1):
                 print(fragment.toString().strip())
             print("-" * 10)
- 
+
 def main():
     # Parse the command line arguments.
     options = parseArgs(sys.argv)
