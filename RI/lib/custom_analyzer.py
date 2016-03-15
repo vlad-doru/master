@@ -12,15 +12,15 @@ from java.util import HashSet, ArrayList, Arrays
 from org.apache.lucene.analysis.util import CharArraySet
 from org.apache.lucene.analysis import Analyzer
 
+
 class CustomRomanianAnalyzer(PythonAnalyzer):
 
-    def __init__(self, stopwords_file = ""):
+    def __init__(self, stopwords_file=""):
         super(CustomRomanianAnalyzer, self).__init__()
         stopwords = []
         if len(stopwords_file) > 0:
             stopwords = textract.process(stopwords_file).split()
         self.__stopwords = StopFilter.makeStopSet(Arrays.asList(stopwords))
-
 
     def createComponents(self, field, reader):
         tokenizer = LowerCaseTokenizer(reader)

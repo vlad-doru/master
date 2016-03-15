@@ -13,6 +13,7 @@ from org.apache.lucene.index import FieldInfo, IndexWriter, IndexWriterConfig
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 
+
 class Indexer(object):
     """Used to index files from a specified folder using Apache Lucene."""
 
@@ -24,7 +25,8 @@ class Indexer(object):
 
         if not os.path.exists(self.__indexDir):
             log.warning("The indexing folder does not exist.")
-            log.info("Creating the folder for holding indexes: {0}".format(self.__indexDir))
+            log.info("Creating the folder for holding indexes: {0}".format(
+                self.__indexDir))
             os.mkdir(self.__indexDir)
 
         indexStore = SimpleFSDirectory(java.io.File(self.__indexDir))
@@ -39,7 +41,8 @@ class Indexer(object):
         self.__nameField = FieldType()
         self.__nameField.setIndexed(True)
         self.__nameField.setStored(True)
-        self.__nameField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
+        self.__nameField.setIndexOptions(
+            FieldInfo.IndexOptions.DOCS_AND_FREQS_AND_POSITIONS)
         # Init the path field type.
         self.__pathField = FieldType()
         self.__pathField.setIndexed(True)
@@ -51,25 +54,30 @@ class Indexer(object):
         for root, dirnames, filenames in os.walk(self.__contentDir):
             for filename in filenames:
                 path = os.path.join(root, filename)
-                rel_path = os.path.join(os.path.relpath(root, self.__contentDir), filename)
+                rel_path = os.path.join(os.path.relpath(
+                    root, self.__contentDir), filename)
                 print("-" * 20)
                 log.info("Indexing file: {0}".format(rel_path))
                 contents = ""
                 # Try to read from .html, .txt, .docx, .pdf
                 try:
                     contents = textract.process(path)
-                    log.info("Sucessfully read contents from file {0}".format(filename))
+                    log.info(
+                        "Sucessfully read contents from file {0}".format(filename))
                 except Exception as e:
-                    log.error("Unexpected error when reading file {1}: {0}".format(filename, e.message()))
+                    log.error("Unexpected error when reading file {1}: {0}".format(
+                        filename, e.message()))
                 # Try to index the document.
                 try:
                     self.indexDoc(rel_path, filename, contents)
                 except Exception as e:
-                    log.error("Unexpected error when adding to index: {0}".format(e.message()))
+                    log.error(
+                        "Unexpected error when adding to index: {0}".format(e.message()))
                 # Print newline to look better.
         print("-" * 20)
         log.info("Commiting the index.")
-        log.info("We have {0} documents indexed.".format(self.__indexWriter.numDocs()))
+        log.info("We have {0} documents indexed.".format(
+            self.__indexWriter.numDocs()))
         self.__indexWriter.commit()
         log.info("Closing the index.")
         self.__indexWriter.close()
@@ -81,8 +89,9 @@ class Indexer(object):
         doc.add(Field("path", path, self.__pathField))
         log.info("Added the path field: {0}".format(path))
         if len(contents) > 0:
-	    log.info("Added the contents field for {0}".format(path))
-            doc.add(Field("contents", contents, Field.Store.YES, Field.Index.ANALYZED))
+            log.info("Added the contents field for {0}".format(path))
+            doc.add(Field("contents", contents,
+                          Field.Store.YES, Field.Index.ANALYZED))
         else:
             log.warning("No contents for {0}".filename)
-    	self.__indexWriter.addDocument(doc)
+        self.__indexWriter.addDocument(doc)

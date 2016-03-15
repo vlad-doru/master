@@ -2,9 +2,9 @@
 
 """index_files.py: We use pyLucene to index files from a given folder."""
 
-__author__      = "Vlad-Doru Ion"
-__copyright__   = "Copyright 2016, Universitatea din Bucuresti"
-__email__       = "vlad.doru@gmail.com"
+__author__ = "Vlad-Doru Ion"
+__copyright__ = "Copyright 2016, Universitatea din Bucuresti"
+__email__ = "vlad.doru@gmail.com"
 
 import glog as log
 import lucene
@@ -14,11 +14,13 @@ import sys
 import lib.indexer
 import lib.custom_analyzer
 
+
 def parseArgs(command):
     """Defines and parses command line arguments.
 
     :returns: (options, path) which represent the options and the folder that we need to index."""
-    parser = optparse.OptionParser(usage = "Usage: ./index_files.py [options] path")
+    parser = optparse.OptionParser(
+        usage="Usage: ./index_files.py [options] path")
     parser.add_option("-i", "--index", type="string",
                       metavar="INDEX_FOLDER", default="index", help="Index folder to use.")
     parser.add_option("-s", "--stopwords", type="string",
@@ -30,6 +32,7 @@ def parseArgs(command):
         parser.print_help()
         exit(1)
     return options, path
+
 
 def main():
     """Main function of the script which starts indexing."""
@@ -50,12 +53,13 @@ def main():
     log.info("Using the index folder:   {0}".format(index_path))
     log.info("Using the stopwords file: {0}".format(stopwords_path))
 
-    log.info("Starting the Lucene VM. Using version: {0}".format(lucene.VERSION))
+    log.info("Starting the Lucene VM. Using version: {0}".format(
+        lucene.VERSION))
     lucene.initVM()
     indexer = lib.indexer.Indexer(abs_path,
-    index_path,
-    lib.custom_analyzer.CustomRomanianAnalyzer,
-    stopwords_path)
+                                  index_path,
+                                  lib.custom_analyzer.CustomRomanianAnalyzer,
+                                  stopwords_path)
     indexer.indexDocs()
 
 if __name__ == '__main__':

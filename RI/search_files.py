@@ -2,9 +2,9 @@
 
 """serach_files.py: We use pyLucene to search the files previously indexed."""
 
-__author__      = "Vlad-Doru Ion"
-__copyright__   = "Copyright 2016, Universitatea din Bucuresti"
-__email__       = "vlad.doru@gmail.com"
+__author__ = "Vlad-Doru Ion"
+__copyright__ = "Copyright 2016, Universitatea din Bucuresti"
+__email__ = "vlad.doru@gmail.com"
 
 import glog as log
 import lucene
@@ -22,18 +22,20 @@ from org.apache.lucene.util import Version
 
 from lib.custom_analyzer import CustomRomanianAnalyzer
 
+
 def parseArgs(command):
     """Defines and parses command line arguments.
 
     :returns: options which represent the options and the index folder that we will use."""
-    parser = optparse.OptionParser(usage = "Usage: ./serach_files.py [options]")
+    parser = optparse.OptionParser(usage="Usage: ./serach_files.py [options]")
     parser.add_option("-i", "--index", type="string",
-                        metavar="INDEX_FOLDER", default="index", help="Index folder to use.")
+                      metavar="INDEX_FOLDER", default="index", help="Index folder to use.")
     parser.add_option("-s", "--stopwords", type="string",
-                        metavar="STOPWORDS_FILE", default="stopwords.txt", help="Stopwords to take into consideration.")
+                      metavar="STOPWORDS_FILE", default="stopwords.txt", help="Stopwords to take into consideration.")
 
     options, args = parser.parse_args(command)
     return options
+
 
 def search(index, stopwords_path):
     indexStore = SimpleFSDirectory(java.io.File(index))
@@ -48,8 +50,10 @@ def search(index, stopwords_path):
             return
 
         print("Searching for {0}".format(query_input))
-        query = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer).parse(query_input)
-        highlighter = Highlighter(SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
+        query = QueryParser(Version.LUCENE_CURRENT,
+                            "contents", analyzer).parse(query_input)
+        highlighter = Highlighter(
+            SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
         hits = searcher.search(query, 50)
         print("{0} total matching documents.".format(hits.totalHits))
 
@@ -60,10 +64,12 @@ def search(index, stopwords_path):
             print("Path: {0}".format(doc.get("path")))
             print("Name: {0}".format(doc.get("name")))
             print("Score: {0}".format(hit.score))
-            tokenStream = analyzer.tokenStream("contents", java.io.StringReader(contents))
+            tokenStream = analyzer.tokenStream(
+                "contents", java.io.StringReader(contents))
             for fragment in highlighter.getBestTextFragments(tokenStream, contents, True, 1):
                 print(fragment.toString().strip())
             print("-" * 10)
+
 
 def main():
     # Parse the command line arguments.
@@ -74,8 +80,9 @@ def main():
     # Log the paths that we are about to use.
     log.info("Using the index folder: {0}".format(index_path))
     log.info("Using the stopwords file: {0}".format(stopwords_path))
-    
-    log.info("Starting the Lucene VM. Using version: {0}".format(lucene.VERSION))
+
+    log.info("Starting the Lucene VM. Using version: {0}".format(
+        lucene.VERSION))
     lucene.initVM()
 
     search(index_path, stopwords_path)
