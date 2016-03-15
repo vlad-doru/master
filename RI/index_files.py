@@ -24,7 +24,7 @@ def parseArgs(command):
     parser.add_option("-i", "--index", type="string",
                       metavar="INDEX_FOLDER", default="index", help="Index folder to use.")
     parser.add_option("-s", "--stopwords", type="string",
-                      metavar="STOPWORDS_FILE", default="stopwords.txt", help="Stopwords to take into consideration.")
+                      metavar="STOPWORDS_FILE", default="stopwords_ro.txt", help="Stopwords to take into consideration.")
     options, args = parser.parse_args(command)
     path = args[1]
     if path == None or options.index == "":

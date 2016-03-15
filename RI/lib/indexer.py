@@ -53,6 +53,9 @@ class Indexer(object):
         """Start indexing docs in the self.__contentDir folder."""
         for root, dirnames, filenames in os.walk(self.__contentDir):
             for filename in filenames:
+                # Pass over the hidden files.
+                if filename[0] == ".":
+                    continue
                 path = os.path.join(root, filename)
                 rel_path = os.path.join(os.path.relpath(
                     root, self.__contentDir), filename)
