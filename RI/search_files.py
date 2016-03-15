@@ -13,7 +13,6 @@ import os
 import sys
 import java.io
 
-from org.apache.lucene.analysis.ro import RomanianAnalyzer
 from org.apache.lucene.index import DirectoryReader
 from org.apache.lucene.queryparser.classic import QueryParser
 from org.apache.lucene.search import IndexSearcher
@@ -21,21 +20,26 @@ from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleH
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 
+from lib.custom_analyzer import CustomRomanianAnalyzer
+
 def parseArgs(command):
     """Defines and parses command line arguments.
 
     :returns: options which represent the options and the index folder that we will use."""
     parser = optparse.OptionParser(usage = "Usage: ./serach_files.py [options]")
     parser.add_option("-i", "--index", type="string",
-                      metavar="INDEX_FOLDER", default="index", help="Index folder to use.")
+                        metavar="INDEX_FOLDER", default="index", help="Index folder to use.")
+    parser.add_option("-s", "--stopwords", type="string",
+                        metavar="STOPWORDS_FILE", default="stopwords.txt", help="Stopwords to take into consideration.")
+
     options, args = parser.parse_args(command)
     return options
 
-def search(index):
+def search(index, stopwords_path):
     indexStore = SimpleFSDirectory(java.io.File(index))
     searcher = IndexSearcher(DirectoryReader.open(indexStore))
     # Again, we use the Romanian Analyzer.
-    analyzer = RomanianAnalyzer()
+    analyzer = CustomRomanianAnalyzer(stopwords_path)
     print("Please type nothing to exit.")
     while True:
         print("#" * 10)
@@ -66,13 +70,15 @@ def main():
     options = parseArgs(sys.argv)
     assert(options.index != None)
     index_path = os.path.abspath(options.index)
+    stopwords_path = os.path.abspath(options.stopwords)
     # Log the paths that we are about to use.
     log.info("Using the index folder: {0}".format(index_path))
-
+    log.info("Using the stopwords file: {0}".format(stopwords_path))
+    
     log.info("Starting the Lucene VM. Using version: {0}".format(lucene.VERSION))
     lucene.initVM()
 
-    search(index_path)
+    search(index_path, stopwords_path)
 
 if __name__ == '__main__':
     main()

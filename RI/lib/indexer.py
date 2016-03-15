@@ -5,6 +5,7 @@ import glog as log
 import java.io
 import os
 import textract
+import custom_analyzer
 
 from org.apache.lucene.analysis.ro import RomanianAnalyzer
 from org.apache.lucene.document import Document, Field, FieldType
@@ -15,7 +16,7 @@ from org.apache.lucene.util import Version
 class Indexer(object):
     """Used to index files from a specified folder using Apache Lucene."""
 
-    def __init__(self, contentDir, indexDir):
+    def __init__(self, contentDir, indexDir, customAnalyzer, stopwords_file):
         """Constructor for the indexer. """
         log.info("Constructing the indexer object.")
         self.__contentDir = contentDir
@@ -27,8 +28,9 @@ class Indexer(object):
             os.mkdir(self.__indexDir)
 
         indexStore = SimpleFSDirectory(java.io.File(self.__indexDir))
-        # We use the Romanian Analyzer.
-        config = IndexWriterConfig(Version.LUCENE_CURRENT, RomanianAnalyzer())
+        # We use the Custom Romanian Analyzer.
+        self.__analyzer = customAnalyzer(stopwords_file)
+        config = IndexWriterConfig(Version.LUCENE_CURRENT, self.__analyzer)
         # Always create a fresh index.
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
         self.__indexWriter = IndexWriter(indexStore, config)

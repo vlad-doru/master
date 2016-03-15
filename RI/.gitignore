@@ -72,3 +72,4 @@ target/
 
 # Index folder for Lucene.
 index/
+files/.DS_Store
