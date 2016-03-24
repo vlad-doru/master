@@ -14,7 +14,7 @@ import sys
 import java.io
 
 from org.apache.lucene.index import DirectoryReader
-from org.apache.lucene.queryparser.classic import QueryParser
+from org.apache.lucene.queryparser.classic import MultiFieldQueryParser, QueryParserBase, QueryParser
 from org.apache.lucene.search import IndexSearcher
 from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleHTMLFormatter
 from org.apache.lucene.store import SimpleFSDirectory
@@ -50,8 +50,10 @@ def search(index, stopwords_path):
             return
 
         print("Searching for {0}".format(query_input))
-        query = QueryParser(Version.LUCENE_CURRENT,
-                            "contents", analyzer).parse(query_input)
+        parser = MultiFieldQueryParser(Version.LUCENE_CURRENT,
+                            ["abstract", "body"], analyzer)
+        parser.setDefaultOperator(QueryParserBase.OR_OPERATOR)
+        query = MultiFieldQueryParser.parse(parser, query_input)
         highlighter = Highlighter(
             SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
         hits = searcher.search(query, 50)
@@ -59,14 +61,21 @@ def search(index, stopwords_path):
 
         for index, hit in enumerate(hits.scoreDocs):
             doc = searcher.doc(hit.doc)
-            contents = doc.get("contents")
             print("#Document {0}".format(index + 1))
             print("Path: {0}".format(doc.get("path")))
             print("Name: {0}".format(doc.get("name")))
             print("Score: {0}".format(hit.score))
+	    print("ABSTRACT MATCHES:")
+            abstract = doc.get("abstract")
             tokenStream = analyzer.tokenStream(
-                "contents", java.io.StringReader(contents))
-            for fragment in highlighter.getBestTextFragments(tokenStream, contents, True, 1):
+                "abstract", java.io.StringReader(abstract))
+            for fragment in highlighter.getBestTextFragments(tokenStream, abstract, True, 1):
+                print(fragment.toString().strip())
+	    print("BODY MATCHES:")
+            body = doc.get("body")
+            tokenStream = analyzer.tokenStream(
+                "body", java.io.StringReader(body))
+            for fragment in highlighter.getBestTextFragments(tokenStream, body, True, 1):
                 print(fragment.toString().strip())
             print("-" * 10)
 
