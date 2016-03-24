@@ -26,6 +26,6 @@ class CustomRomanianAnalyzer(PythonAnalyzer):
         tokenizer = LowerCaseTokenizer(reader)
         filter = StandardFilter(tokenizer)
         filter = StopFilter(filter, self.__stopwords)
-        filter = SnowballFilter(filter, RomanianStemmer())
         filter = ASCIIFoldingFilter(filter)
+        filter = SnowballFilter(filter, RomanianStemmer())
         return Analyzer.TokenStreamComponents(tokenizer, filter)
