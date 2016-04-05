@@ -103,6 +103,8 @@ class Indexer(object):
 	doc.add(Field("name", filename, self.__nameField))
 	log.info("Added the path field: {0}".format(path))
 	doc.add(Field("path", path, self.__pathField))
+        log.info("Added the contents field for {0}".format(path))
+        doc.add(Field("contents", contents, Field.Store.NO, Field.Index.ANALYZED))
         if len(contents) > 0:
             abstract, body = self.__splitContents(contents)
             field = Field("abstract", abstract, Field.Store.YES, Field.Index.ANALYZED)

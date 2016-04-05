@@ -8,19 +8,25 @@ __email__ = "vlad.doru@gmail.com"
 
 import glog as log
 import lucene
+import inspect
 import optparse
 import os
 import sys
 import java.io
+import java.util
+import math
 
-from org.apache.lucene.index import DirectoryReader
+from org.apache.lucene.index import DirectoryReader, Term
 from org.apache.lucene.queryparser.classic import MultiFieldQueryParser, QueryParserBase, QueryParser
 from org.apache.lucene.search import IndexSearcher
+from org.apache.lucene.search.similarities import DefaultSimilarity
 from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleHTMLFormatter
 from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.util import Version
 
 from lib.custom_analyzer import CustomRomanianAnalyzer
+
+from nltk.tokenize import WhitespaceTokenizer
 
 
 def parseArgs(command):
@@ -36,10 +42,13 @@ def parseArgs(command):
     options, args = parser.parse_args(command)
     return options
 
+def idf(docFreq, numDocs):
+    return math.log(numDocs/(docFreq+1)) + 1
 
 def search(index, stopwords_path):
     indexStore = SimpleFSDirectory(java.io.File(index))
-    searcher = IndexSearcher(DirectoryReader.open(indexStore))
+    reader = DirectoryReader.open(indexStore)
+    searcher = IndexSearcher(reader)
     # Again, we use the Romanian Analyzer.
     analyzer = CustomRomanianAnalyzer(stopwords_path)
     print("Please type nothing to exit.")
@@ -54,8 +63,30 @@ def search(index, stopwords_path):
                             ["abstract", "body"], analyzer)
         parser.setDefaultOperator(QueryParserBase.OR_OPERATOR)
         query = MultiFieldQueryParser.parse(parser, query_input)
-        highlighter = Highlighter(
-            SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
+
+        # We use another field for computing the idf and tf.
+        contents_parser = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer)
+        query_tokens = WhitespaceTokenizer().tokenize(query_input)
+        query_terms = []
+        for query_token in query_tokens:
+            print("IDF for token: {0}".format(query_token))
+            contents_query = QueryParser.parse(contents_parser, query_token)
+            terms_set = java.util.HashSet()
+            contents_query.extractTerms(terms_set)
+            terms = [x for x in terms_set]
+            if len(terms) == 0:
+                print("\tIgnoring")
+                continue
+            assert(len(terms) == 1)
+            term = terms[0]
+            query_terms.append(term)
+            idf_value = idf(reader.docFreq(term), reader.maxDoc())
+            print("\tDocument frequency: {0}".format(reader.docFreq(term))) 
+            print("\tIndexed documents: {0}".format(reader.maxDoc())) 
+            print("\tIDF: {0}".format(idf_value))
+
+        # Searching 
+        highlighter = Highlighter(SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
         hits = searcher.search(query, 50)
         print("{0} total matching documents.".format(hits.totalHits))
 
