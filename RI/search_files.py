@@ -69,7 +69,6 @@ def search(index, stopwords_path):
         query_tokens = WhitespaceTokenizer().tokenize(query_input)
         query_terms = []
         for query_token in query_tokens:
-            print("IDF for token: {0}".format(query_token))
             contents_query = QueryParser.parse(contents_parser, query_token)
             terms_set = java.util.HashSet()
             contents_query.extractTerms(terms_set)
@@ -78,11 +77,13 @@ def search(index, stopwords_path):
                 print("\tIgnoring")
                 continue
             assert(len(terms) == 1)
-            term = terms[0]
-            query_terms.append(term)
-            idf_value = idf(reader.docFreq(term), reader.maxDoc())
+            query_terms.append((terms[0], query_token))
+
+        for term, token in query_terms:
+            print("IDF for token: {0}".format(query_token))
+            idf_value = idf(reader.docFreq(term), reader.numDocs())
             print("\tDocument frequency: {0}".format(reader.docFreq(term))) 
-            print("\tIndexed documents: {0}".format(reader.maxDoc())) 
+            print("\tIndexed documents: {0}".format(reader.numDocs())) 
             print("\tIDF: {0}".format(idf_value))
 
         # Searching 
