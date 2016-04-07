@@ -47,6 +47,12 @@ class Indexer(object):
         self.__pathField.setIndexed(True)
         self.__pathField.setStored(False)
         self.__pathField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)
+    
+        self.__contentsField = FieldType()
+        self.__contentsField.setIndexed(True)
+        self.__contentsField.setStored(True)
+        self.__contentsField.setStoreTermVectors(True)
+        self.__contentsField.setIndexOptions(FieldInfo.IndexOptions.DOCS_AND_FREQS)
 
     def indexDocs(self):
         """Start indexing docs in the self.__contentDir folder."""
@@ -104,7 +110,7 @@ class Indexer(object):
 	log.info("Added the path field: {0}".format(path))
 	doc.add(Field("path", path, self.__pathField))
         log.info("Added the contents field for {0}".format(path))
-        doc.add(Field("contents", contents, Field.Store.NO, Field.Index.ANALYZED))
+        doc.add(Field("contents", contents, self.__contentsField))
         if len(contents) > 0:
             abstract, body = self.__splitContents(contents)
             field = Field("abstract", abstract, Field.Store.YES, Field.Index.ANALYZED)

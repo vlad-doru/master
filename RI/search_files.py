@@ -15,14 +15,15 @@ import sys
 import java.io
 import java.util
 import math
+import collections
 
-from org.apache.lucene.index import DirectoryReader, Term
+from org.apache.lucene.index import DirectoryReader, Term, TermsEnum, MultiFields, DocsEnum
 from org.apache.lucene.queryparser.classic import MultiFieldQueryParser, QueryParserBase, QueryParser
-from org.apache.lucene.search import IndexSearcher
+from org.apache.lucene.search import IndexSearcher, DocIdSetIterator
 from org.apache.lucene.search.similarities import DefaultSimilarity
 from org.apache.lucene.search.highlight import Highlighter, QueryScorer, SimpleHTMLFormatter
 from org.apache.lucene.store import SimpleFSDirectory
-from org.apache.lucene.util import Version
+from org.apache.lucene.util import Version, BytesRefIterator, BytesRef
 
 from lib.custom_analyzer import CustomRomanianAnalyzer
 
@@ -43,7 +44,7 @@ def parseArgs(command):
     return options
 
 def idf(docFreq, numDocs):
-    return math.log(numDocs/(docFreq+1)) + 1
+    return math.log(float(numDocs)/(float(docFreq)+1)) + 1
 
 def search(index, stopwords_path):
     indexStore = SimpleFSDirectory(java.io.File(index))
@@ -53,7 +54,7 @@ def search(index, stopwords_path):
     analyzer = CustomRomanianAnalyzer(stopwords_path)
     print("Please type nothing to exit.")
     while True:
-        print("#" * 10)
+        print("##############")
         query_input = raw_input("NEW QUERY:")
         if query_input == "":
             return
@@ -62,29 +63,46 @@ def search(index, stopwords_path):
         parser = MultiFieldQueryParser(Version.LUCENE_CURRENT,
                             ["abstract", "body"], analyzer)
         parser.setDefaultOperator(QueryParserBase.OR_OPERATOR)
-        query = MultiFieldQueryParser.parse(parser, query_input)
+        query = None
+        try: 
+            query = MultiFieldQueryParser.parse(parser, query_input)
+        except:
+            continue
 
         # We use another field for computing the idf and tf.
         contents_parser = QueryParser(Version.LUCENE_CURRENT, "contents", analyzer)
         query_tokens = WhitespaceTokenizer().tokenize(query_input)
         query_terms = []
         for query_token in query_tokens:
-            contents_query = QueryParser.parse(contents_parser, query_token)
             terms_set = java.util.HashSet()
+            contents_query = QueryParser.parse(contents_parser, query_token)
             contents_query.extractTerms(terms_set)
             terms = [x for x in terms_set]
             if len(terms) == 0:
-                print("\tIgnoring")
                 continue
             assert(len(terms) == 1)
-            query_terms.append((terms[0], query_token))
+            query_terms.append((Term.cast_(terms[0]), query_token))
 
         for term, token in query_terms:
-            print("IDF for token: {0}".format(query_token))
+            print("IDF for token: {0}".format(token))
             idf_value = idf(reader.docFreq(term), reader.numDocs())
             print("\tDocument frequency: {0}".format(reader.docFreq(term))) 
             print("\tIndexed documents: {0}".format(reader.numDocs())) 
             print("\tIDF: {0}".format(idf_value))
+
+        token_freq = collections.defaultdict(lambda: collections.defaultdict(int))
+        for term, token in query_terms:
+            term_bytes = term.bytes()
+            docs_enum = MultiFields.getTermDocsEnum(reader, 
+                    MultiFields.getLiveDocs(reader), 
+                    "contents", 
+                    term_bytes, 
+                    DocsEnum.FLAG_FREQS)
+            while True:
+                doc = docs_enum.nextDoc()
+                if doc == DocIdSetIterator.NO_MORE_DOCS:
+                    break
+                token_freq[token][doc] = docs_enum.freq()
 
         # Searching 
         highlighter = Highlighter(SimpleHTMLFormatter("<<", ">>"), QueryScorer(query))
@@ -97,6 +115,12 @@ def search(index, stopwords_path):
             print("Path: {0}".format(doc.get("path")))
             print("Name: {0}".format(doc.get("name")))
             print("Score: {0}".format(hit.score))
+            print("Query terms frequencies: ")
+            for _, token in query_terms:
+                tf = token_freq[token][hit.doc]
+                print("\t {0} TF: sqrt({1}) = {2}".format(token, tf, round(math.sqrt(float(tf)), 2)))
+
+	    # Highlight the matches.
 	    print("ABSTRACT MATCHES:")
             abstract = doc.get("abstract")
             tokenStream = analyzer.tokenStream(
