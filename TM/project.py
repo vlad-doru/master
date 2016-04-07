@@ -4,7 +4,7 @@ import logging as log
 import sys
 import nltk
 
-from nltk.classify import NaiveBayesClassifier
+from nltk.classify import NaiveBayesClassifier, DecisionTreeClassifier
 from nltk.tokenize.casual import TweetTokenizer
 from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import mark_negation, extract_unigram_feats
@@ -24,7 +24,8 @@ def setup_logging():
 
 def validation_split(df):
     # Remove the neutral tweets.
-    df = df.head(n = 3000)
+    # REMOVE THIS AFTER FINAL SCRIPT
+    df = df.head(n = 500)
     mask = np.random.rand(len(df)) < TRAIN_SAMPLE_SIZE
     return df[mask], df[~mask]
 
@@ -56,13 +57,19 @@ def main():
     test = process_data(test_data)
     sentim_analyzer = SentimentAnalyzer()
     all_words = sentim_analyzer.all_words(train, labeled=True)
-    unigram_feats = sentim_analyzer.unigram_word_feats(all_words, min_freq=3)
+    # TODO: Change the min_freq 
+    unigram_feats = sentim_analyzer.unigram_word_feats(all_words, min_freq=10)
     sentim_analyzer.add_feat_extractor(extract_unigram_feats, unigrams=unigram_feats)
     training_set = sentim_analyzer.apply_features(train)
     test_set = sentim_analyzer.apply_features(test)
     trainer = NaiveBayesClassifier.train
-    classifier = sentim_analyzer.train(trainer, training_set)
-    print(classifier.show_most_informative_features(10))
+    trainer = DecisionTreeClassifier.train
+    # TODO generalize this to use multiple ML techniques.
+    # TODO try various parameters and plot results.
+    # Save the models in files.
+    classifier = sentim_analyzer.train(trainer, training_set, save_classifier="./models/decision_tree.model", 
+            verbose = True)
+    # print(classifier.show_most_informative_features(10))
     for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
         print('{0}: {1}'.format(key, value))
     
