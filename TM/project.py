@@ -1,53 +1,22 @@
 import pandas
 import numpy as np
-import logging as log
-import sys
 import nltk
 import pickle
 
 from lib import loading
+from lib import processing
 
 from sklearn.svm import LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
 
-from nltk.classify import NaiveBayesClassifier, DecisionTreeClassifier, SklearnClassifier
-from nltk.tokenize.casual import TweetTokenizer
+from nltk.sentiment.util import extract_unigram_feats
 from nltk.sentiment import SentimentAnalyzer
-from nltk.sentiment.util import mark_negation, extract_unigram_feats
-from nltk.corpus import stopwords
+from nltk.classify import NaiveBayesClassifier, DecisionTreeClassifier, SklearnClassifier
 
-def process_data(df):
-    USED_SAMPLE_SIZE = 1.0
-    CROSS_VALIDATION_SIZE = 0.9
-    df = df.head(n = int(len(df) * USED_SAMPLE_SIZE))
-    mask = np.random.rand(len(df)) < CROSS_VALIDATION_SIZE
-    training_data = tokenize_tweets(df[mask])
-    testing_data = tokenize_tweets(df[~mask])
-    # Log info
-    log.info("Using a total of {0} tweets".format(len(df)))
-    log.info("Training sample size: {0}".format(len(training_data)))
-    log.info("Testing sample size: {0}".format(len(testing_data)))
-    return training_data, testing_data
-
-def process_tweet(tweet):
-    # Use a tweet tokenizer form the nltk package.
-    tokenizer = TweetTokenizer()
-    tokens = tokenizer.tokenize(tweet)
-    filtered = [w for w in tokens if w not in stopwords.words('english')]
-    return mark_negation(filtered)
-
-def tokenize_tweets(data):
-    # Get the lowercase of the text.
-    extracted = list(zip(data['text'].str.lower(), data['airline_sentiment']))
-    # Use mark negation to capture better sentiment.
-    tokenized = [(process_tweet(text), label) for text, label in extracted] 
-    return tokenized
-
-def add_features(train_data, sentim_analyzer):
+def add_features(train_data, sentim_analyzer, min_freq = 10):
     all_words = sentim_analyzer.all_words(train_data, labeled=True)
-    # TODO: Change the min_freq 
-    unigram_feats = sentim_analyzer.unigram_word_feats(all_words, min_freq=10)
-    log.info("Number of features: {0}".format(len(unigram_feats)))
+    unigram_feats = sentim_analyzer.unigram_word_feats(all_words, min_freq= min_freq)
+    print("Number of features: {0}".format(len(unigram_feats)))
     sentim_analyzer.add_feat_extractor(extract_unigram_feats, unigrams=unigram_feats)
 
 def extract_features(training_data, testing_data, sentim_analyzer):
@@ -56,7 +25,7 @@ def extract_features(training_data, testing_data, sentim_analyzer):
 def train_models(training_data, testing_data, sentim_analyzer, trainers):
     models = []
     for trainer in trainers:
-        log.info("Training: {0}".format(trainer["name"]))
+        print("Training: {0}".format(trainer["name"]))
         classifier = sentim_analyzer.train(trainer["train"], training_data)
         # Evaluate the test set. 
         evaluation = sentim_analyzer.evaluate(testing_data)
@@ -65,7 +34,7 @@ def train_models(training_data, testing_data, sentim_analyzer, trainers):
         # Save the classifier to a file.
         if "model_file" in trainer:
             model_file="./models/{}.pickle".format(trainer["model_file"])
-            log.info("Saving the model to file: {0}".format(model_file))
+            print("Saving the model to file: {0}".format(model_file))
             f = open(model_file, "wb")
             pickle.dump({
                 "classifier": classifier,
@@ -75,10 +44,9 @@ def train_models(training_data, testing_data, sentim_analyzer, trainers):
     return models
 
 def main():
-    loading.setup_logging()
     df = loading.load_data()
     # Pre-proces tweets: tokenize, etc.
-    training_data, testing_data = process_data(df)
+    training_data, testing_data = processing.process_data(df)
     # Create a sentiment analyzer.
     sentim_analyzer = SentimentAnalyzer()
     # Add the feature extractor to the sentiment analyzer.
@@ -94,7 +62,7 @@ def main():
         {"name": "Linear SVC Classifier",
         "model_file": "linear_svc",
         "train": SklearnClassifier(LinearSVC(
-            C = 100,
+            C = 1,
             dual = False, # because number of samples > number of features
             )).train,},
         {"name": "K Nearest Neighbours Classifier",
