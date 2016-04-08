@@ -6,6 +6,7 @@ import nltk
 import pickle
 
 from sklearn.svm import LinearSVC
+from sklearn.neighbors import KNeighborsClassifier
 
 from nltk.classify import NaiveBayesClassifier, DecisionTreeClassifier, SklearnClassifier
 from nltk.tokenize.casual import TweetTokenizer
@@ -94,13 +95,21 @@ def main():
     # Extract features from training and testing data.
     train, test = extract_features(training_data, testing_data, sentim_analyzer)
     # Select the type of classifier we are going to use.
-    trainers = [{"name": "Naive Bayes Classifier",
-                "model_file": "naive_bayes",
-                "train": NaiveBayesClassifier.train,
-                },
-                {"name": "SVM Classifier",
-                "model_file": "svm",
-                "train": SklearnClassifier(LinearSVC()).train,}]
+    trainers = [
+        {"name": "Naive Bayes Classifier",
+        "model_file": "naive_bayes",
+        "train": NaiveBayesClassifier.train,
+        },
+        {"name": "Linear SVC Classifier",
+        "model_file": "linear_svc",
+        "train": SklearnClassifier(LinearSVC(
+            dual = False, # because number of samples > number of features
+            )).train,},
+        {"name": "K Nearest Neighbours Classifier",
+        "model_file": "k_neighbours",
+        "train": SklearnClassifier(KNeighborsClassifier(
+            )).train,}
+    ]
     # Train all enumerated models
     models = train_models(train, test, sentim_analyzer, trainers)
     for classifier, evaluation, trainer in models:
