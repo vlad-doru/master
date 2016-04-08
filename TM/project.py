@@ -25,7 +25,7 @@ def setup_logging():
     root.addHandler(ch)
 
 def process_data(df):
-    USED_SAMPLE_SIZE = 0.5
+    USED_SAMPLE_SIZE = 1.0
     CROSS_VALIDATION_SIZE = 0.9
     df = df.head(n = int(len(df) * USED_SAMPLE_SIZE))
     mask = np.random.rand(len(df)) < CROSS_VALIDATION_SIZE
