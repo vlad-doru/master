@@ -5,6 +5,8 @@ import sys
 import nltk
 import pickle
 
+from lib import loading
+
 from sklearn.svm import LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -13,16 +15,6 @@ from nltk.tokenize.casual import TweetTokenizer
 from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import mark_negation, extract_unigram_feats
 from nltk.corpus import stopwords
-
-def setup_logging():
-    root = log.getLogger()
-    root.setLevel(log.DEBUG)
-
-    ch = log.StreamHandler(sys.stdout)
-    ch.setLevel(log.DEBUG)
-    formatter = log.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    root.addHandler(ch)
 
 def process_data(df):
     USED_SAMPLE_SIZE = 1.0
@@ -71,21 +63,20 @@ def train_models(training_data, testing_data, sentim_analyzer, trainers):
         # Add to the models list.
         models.append((classifier, evaluation, trainer))
         # Save the classifier to a file.
-        model_file="./models/{}.pickle".format(trainer["model_file"])
-        log.info("Saving the model to file: {0}".format(model_file))
-        f = open(model_file, "wb")
-        pickle.dump({
-            "classifier": classifier,
-            "evaluation": evaluation,
-            "trainer": trainer,
-        }, f, -1)
+        if "model_file" in trainer:
+            model_file="./models/{}.pickle".format(trainer["model_file"])
+            log.info("Saving the model to file: {0}".format(model_file))
+            f = open(model_file, "wb")
+            pickle.dump({
+                "classifier": classifier,
+                "evaluation": evaluation,
+                "trainer": trainer,
+            }, f, -1)
     return models
 
 def main():
-    setup_logging()
-    data_file = './airline-twitter-sentiment/Tweets.csv'
-    df = pandas.read_csv(data_file)
-    log.info("Read the data file from {0}".format(data_file))
+    loading.setup_logging()
+    df = loading.load_data()
     # Pre-proces tweets: tokenize, etc.
     training_data, testing_data = process_data(df)
     # Create a sentiment analyzer.
@@ -103,6 +94,7 @@ def main():
         {"name": "Linear SVC Classifier",
         "model_file": "linear_svc",
         "train": SklearnClassifier(LinearSVC(
+            C = 100,
             dual = False, # because number of samples > number of features
             )).train,},
         {"name": "K Nearest Neighbours Classifier",
