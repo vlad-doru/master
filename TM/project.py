@@ -35,16 +35,16 @@ def main():
         "model_file": "naive_bayes",
         "train": NaiveBayesClassifier.train,
         },
-        {"name": "Linear SVC Classifier",
-        "model_file": "linear_svc",
-        "train": SklearnClassifier(LinearSVC(
-            C = 1,
-            dual = False, # because number of samples > number of features
-            )).train,},
-        {"name": "K Nearest Neighbours Classifier",
-        "model_file": "k_neighbours",
-        "train": SklearnClassifier(KNeighborsClassifier(
-            )).train,}
+        # {"name": "Linear SVC Classifier",
+        # "model_file": "linear_svc",
+        # "train": SklearnClassifier(LinearSVC(
+        #     C = 1,
+        #     dual = False, # because number of samples > number of features
+        #     )).train,},
+        # {"name": "K Nearest Neighbours Classifier",
+        # "model_file": "k_neighbours",
+        # "train": SklearnClassifier(KNeighborsClassifier(
+        #     )).train,}
     ]
     # Train all enumerated models
     models = train_models(train, test, sentim_analyzer, trainers)
