@@ -1,5 +1,7 @@
 import sys
 import collections
+import time
+import concurrent.futures
 
 LAMBDA = "\\"
 DEBUG = False
@@ -84,23 +86,24 @@ class IndianGrammar(object):
         words = set()
         # For each non terminal try to derive it's productions.
         debug(tabs, "LEFT", left)
-        for n in left_n:
-            for prod in self.P[n]:
-                debug(tabs, "PROD", n, prod)
-                right = []
-                for x in left:
-                    if x == n:
-                        right = right + prod 
-                    else:
-                        right.append(x)
-                debug(tabs, "RIGHT", right)
-                aux_voc = self._voc(right, max_depth - 1, tabs = tabs + "\t")
-                debug(tabs, "VOC", aux_voc)
-                for x in aux_voc:
-                    words.add(x)
+        for ws in map(lambda n: self._expand(left, n, max_depth, tabs), left_n):
+            words = words.union(ws)
         return words
         
-        
+    def _expand(self, left, n, max_depth, tabs):
+        voc = set()
+        for prod in self.P[n]:
+            debug(tabs, "PROD", n, prod)
+            right = []
+            for x in left:
+                if x == n:
+                    right = right + prod 
+                else:
+                    right.append(x)
+            aux_voc = self._voc(right, max_depth - 1, tabs = tabs + "\t")
+            voc = voc.union(aux_voc)
+        debug(tabs, "VOC", voc)
+        return voc
 
 def main():
     if len(sys.argv) != 2:
@@ -120,8 +123,11 @@ def main():
             print("Introduceti un numar valid (> 0)")
             continue
         print("Calculam multimea cuvintelor obtinute prin maxim {0} derivari.".format(max_depth))
+        start = time.time()
         v = grammar.vocabulary(max_depth)
+        end = time.time()
         print("Cuvintele obtinute:", sorted(v))
+        print('Calculul a durat {0} s'.format(round((end - start), 3)))
     
 
 if __name__ == '__main__':
