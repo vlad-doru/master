@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -16,7 +17,7 @@ var File string
 
 func init() {
 	flag.BoolVar(&ShouldPrint, "print", true, "Printarea vocabularului.")
-	flag.StringVar(&File, "file", "", "Printarea vocabularului.")
+	flag.StringVar(&File, "file", "", "Descrierea gramaticii.")
 }
 
 type IndianGrammar struct {
@@ -58,22 +59,37 @@ func (g *IndianGrammar) derive(left []string, max_depth int) map[string]bool {
 	if max_depth <= 0 {
 		return vocabulary
 	}
+	// Mutex to protect the vocabulary dictionary.
+	mutex := sync.Mutex{}
+	// Waitgroup to wait for all goroutines to finish.
+	group := sync.WaitGroup{}
 	for n, _ := range left_n {
-		for _, prod := range g.P[n] {
-			right := make([]string, 0)
-			for _, x := range left {
-				if x == n {
-					right = append(right, prod...)
-				} else {
-					right = append(right, x)
-				}
+		group.Add(1) // Mark to wait for routine to finish.
+		go func() {  // Paralellism
+			for _, prod := range g.P[n] {
+				group.Add(1)             // Mark to wait for routine to finish.
+				go func(prod []string) { // Parallelism
+					right := make([]string, 0)
+					for _, x := range left {
+						if x == n {
+							right = append(right, prod...)
+						} else {
+							right = append(right, x)
+						}
+					}
+					aux_voc := g.derive(right, max_depth-1)
+					mutex.Lock() // Protect dictionary.
+					for w, _ := range aux_voc {
+						vocabulary[w] = true
+					}
+					mutex.Unlock()
+					group.Done()
+				}(prod)
 			}
-			aux_voc := g.derive(right, max_depth-1)
-			for w, _ := range aux_voc {
-				vocabulary[w] = true
-			}
-		}
+			group.Done()
+		}()
 	}
+	group.Wait() // Wait for all to finish.
 	return vocabulary
 }
 
@@ -88,6 +104,9 @@ func main() {
 	fmt.Printf("Va rugam sa introduceti numarul maxim de derivari:")
 	for scanner.Scan() {
 		input := scanner.Text()
+		if input == "" {
+			break
+		}
 		max_depth, err := strconv.Atoi(input)
 		if err == nil {
 			start := time.Now()
