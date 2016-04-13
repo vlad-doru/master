@@ -3,11 +3,21 @@ package main
 import (
 	"./grammar"
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"sort"
 	"strconv"
+	"time"
 )
+
+var ShouldPrint bool
+var File string
+
+func init() {
+	flag.BoolVar(&ShouldPrint, "print", true, "Printarea vocabularului.")
+	flag.StringVar(&File, "file", "", "Printarea vocabularului.")
+}
 
 type IndianGrammar struct {
 	*grammar.Grammar
@@ -68,11 +78,8 @@ func (g *IndianGrammar) derive(left []string, max_depth int) map[string]bool {
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Print("Va rugam sa dati fisierul ce descrie gramatica ca unic argument.")
-		os.Exit(1)
-	}
-	indian, err := NewIndianGrammar(os.Args[1])
+	flag.Parse()
+	indian, err := NewIndianGrammar(File)
 	if err != nil {
 		fmt.Printf("[EROARE] %v\n", err)
 		os.Exit(1)
@@ -83,16 +90,21 @@ func main() {
 		input := scanner.Text()
 		max_depth, err := strconv.Atoi(input)
 		if err == nil {
+			start := time.Now()
 			v := indian.Vocabulary(max_depth)
-			fmt.Printf("Cuvintele obtinute prin aplicarea a cel mult %d derivari sunt:\n", max_depth)
-			words := []string{}
-			for w, _ := range v {
-				words = append(words, w)
+			duration := time.Since(start)
+			if ShouldPrint {
+				fmt.Printf("Cuvintele obtinute prin aplicarea a cel mult %d derivari sunt:\n", max_depth)
+				words := []string{}
+				for w, _ := range v {
+					words = append(words, w)
+				}
+				sort.Strings(words)
+				for _, w := range words {
+					fmt.Printf("\t*%s\n", w)
+				}
 			}
-			sort.Strings(words)
-			for _, w := range words {
-				fmt.Printf("\t*%s\n", w)
-			}
+			fmt.Printf("Durata de calcul a vocabularului: %.3f\n", duration.Seconds())
 		}
 		fmt.Printf("--------------------------\n")
 		fmt.Printf("Va rugam sa introduceti numarul maxim de derivari:")
