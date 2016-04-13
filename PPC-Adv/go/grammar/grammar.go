@@ -10,9 +10,11 @@ import (
 type Grammar struct {
 	N map[string]bool
 	T map[string]bool
-	P map[string][]string
+	P map[string][][]string
 	S string
 }
+
+const LAMBDA = "\\"
 
 func NewGrammar(file_path string) (*Grammar, error) {
 	file, err := os.Open(file_path)
@@ -54,7 +56,7 @@ func NewGrammar(file_path string) (*Grammar, error) {
 	}
 	// Process production rules.
 	index := 2
-	grammar.P = make(map[string][]string)
+	grammar.P = make(map[string][][]string)
 	for index < len(lines)-1 {
 		line = strings.Split(lines[index], " ")
 		index++
@@ -75,12 +77,18 @@ func NewGrammar(file_path string) (*Grammar, error) {
 				return nil, fmt.Errorf("Simbolul %s nu se afla in N, T sau \\.", x)
 			}
 		}
-		grammar.P[line[0]] = line[2:]
+		grammar.P[line[0]] = append(grammar.P[line[0]], line[2:])
 	}
 	// Set the start symbol.
 	_, ok := grammar.N[lines[len(lines)-1]]
 	if !ok {
 		return nil, fmt.Errorf("Simbolul de start trebuie sa faca parte din multimea neterminalelor.")
 	}
+	grammar.S = lines[len(lines)-1]
 	return grammar, nil
+}
+
+func (g *Grammar) IsN(x string) bool {
+	_, ok := g.N[x]
+	return ok
 }
