@@ -1,4 +1,4 @@
-package main
+package grammar
 
 import (
 	"bufio"
@@ -83,16 +83,4 @@ func NewGrammar(file_path string) (*Grammar, error) {
 		return nil, fmt.Errorf("Simbolul de start trebuie sa faca parte din multimea neterminalelor.")
 	}
 	return grammar, nil
-}
-
-func main() {
-	if len(os.Args) != 2 {
-		fmt.Print("Va rugam sa dati fisierul ce descrie gramatica ca unic argument.")
-		os.Exit(1)
-	}
-	_, err := NewGrammar(os.Args[1])
-	if err != nil {
-		fmt.Printf("[EROARE] %v\n", err)
-		os.Exit(1)
-	}
 }
