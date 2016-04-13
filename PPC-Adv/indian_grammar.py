@@ -89,7 +89,7 @@ def _voc(grammar, left, max_depth, tabs = ""):
     # For each non terminal try to derive it's productions.
     debug(tabs, "LEFT", left)
     args = [(grammar, left, n, max_depth, tabs) for n in left_n]
-    for ws in parallel(_expand, args):
+    for ws in multiprocessing.Pool(3)(_expand, args):
         words = words.union(ws)
     return words
     
@@ -108,11 +108,6 @@ def _expand(args):
         voc = voc.union(aux_voc)
     debug(tabs, "VOC", voc)
     return voc
-
-POOL = concurrent.futures.ThreadPoolExecutor()
-
-def parallel(f, l):
-    return POOL.map(f, l)
 
 def main():
     if len(sys.argv) != 2:
