@@ -57,7 +57,7 @@ func NewCNFGrammar(file_path string) (*CNFGrammar, error) {
 func (g *CNFGrammar) addN(dp map[int]map[int]map[string]bool, i int, j int, N string) {
 	_, ok := dp[i][j]
 	if !ok {
-		g.mutex.Lock()
+		g.mutex.Lock() // Blocam mutex-ul la scriere.
 		dp[i][j] = make(map[string]bool)
 		g.mutex.Unlock()
 	}
@@ -98,10 +98,10 @@ func (g *CNFGrammar) CYKParsing(ws []string) bool {
 						}
 					}
 				}
-				wait.Done()
+				wait.Done() // Marcam subsecventa ca procesata.
 			}(i, j, l)
 		}
-		wait.Wait()
+		wait.Wait() // Asteptam toate subsecventele pentru a putea trece la lungimi mai mari.
 	}
 	_, accepted := dp[0][len(ws)][g.S]
 	return accepted
