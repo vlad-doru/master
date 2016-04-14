@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <thread>
 
 using namespace std;
 
@@ -36,6 +37,9 @@ int main(int argc, char *argv[])
 	}
 	string file = string(argv[1]);
 	auto numbers = read_input(file);
+	auto cores = thread::hardware_concurrency();
+	cout << "Available cores: " << cores << endl;
+	cout << "Starting to sort.\n";
 	auto start = clock();
 	parallel_sort(numbers);
 	cout << "Sorting time: " << (clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms\n";
