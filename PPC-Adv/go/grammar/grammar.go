@@ -16,7 +16,7 @@ type Grammar struct {
 
 const LAMBDA = "\\"
 
-type ProdValidation func([]string) error
+type ProdValidation func(*Grammar, []string) error
 
 func NewGrammar(file_path string, validation ProdValidation) (*Grammar, error) {
 	file, err := os.Open(file_path)
@@ -80,7 +80,7 @@ func NewGrammar(file_path string, validation ProdValidation) (*Grammar, error) {
 			}
 		}
 		if validation != nil {
-			err := validation(line[2:])
+			err := validation(grammar, line[2:])
 			if err != nil {
 				return nil, err
 			}
@@ -98,5 +98,13 @@ func NewGrammar(file_path string, validation ProdValidation) (*Grammar, error) {
 
 func (g *Grammar) IsN(x string) bool {
 	_, ok := g.N[x]
+	return ok
+}
+
+func (g *Grammar) IsT(x string) bool {
+	if x == LAMBDA {
+		return true
+	}
+	_, ok := g.T[x]
 	return ok
 }

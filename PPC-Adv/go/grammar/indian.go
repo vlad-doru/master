@@ -40,7 +40,7 @@ func (g *IndianGrammar) derive(left []string, max_depth int) {
 			if x == LAMBDA {
 				continue
 			}
-			word = word + x
+			word = word + x + " "
 		}
 		g.mutex.Lock()
 		g.vocabulary[word] = true

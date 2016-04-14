@@ -46,7 +46,7 @@ func main() {
 				}
 				sort.Strings(words)
 				for _, w := range words {
-					fmt.Printf("\t*%s\n", w)
+					fmt.Printf("\t* %s\n", w)
 				}
 			}
 			fmt.Printf("Dimensiunea vocabularului: %d\n", len(v))
