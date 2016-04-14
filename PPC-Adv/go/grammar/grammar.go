@@ -16,7 +16,9 @@ type Grammar struct {
 
 const LAMBDA = "\\"
 
-func NewGrammar(file_path string) (*Grammar, error) {
+type ProdValidation func([]string) error
+
+func NewGrammar(file_path string, validation ProdValidation) (*Grammar, error) {
 	file, err := os.Open(file_path)
 	if err != nil {
 		return nil, err
@@ -40,7 +42,7 @@ func NewGrammar(file_path string) (*Grammar, error) {
 	grammar.N = make(map[string]bool)
 	line := strings.Split(lines[0], " ")
 	for _, n := range line {
-		if (len(n) != 1) || (strings.ToUpper(n) != n) {
+		if strings.ToUpper(n) != n {
 			return nil, fmt.Errorf("Neterminal invalid: %s. Se accepta doar litere mari!", n)
 		}
 		grammar.N[n] = true
@@ -49,7 +51,7 @@ func NewGrammar(file_path string) (*Grammar, error) {
 	grammar.T = make(map[string]bool)
 	line = strings.Split(lines[1], " ")
 	for _, x := range line {
-		if (len(x) != 1) || (strings.ToLower(x) != x) {
+		if strings.ToLower(x) != x {
 			return nil, fmt.Errorf("Terminal invalid: %s. Se accepta doar litere mici!")
 		}
 		grammar.T[x] = true
@@ -76,6 +78,10 @@ func NewGrammar(file_path string) (*Grammar, error) {
 			if !N_ok && !T_ok {
 				return nil, fmt.Errorf("Simbolul %s nu se afla in N, T sau \\.", x)
 			}
+		}
+		err := validation(line[2:])
+		if err != nil {
+			return nil, err
 		}
 		grammar.P[line[0]] = append(grammar.P[line[0]], line[2:])
 	}
