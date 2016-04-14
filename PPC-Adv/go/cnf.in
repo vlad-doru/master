@@ -1,0 +1,15 @@
+S NP VP PP V N P D
+a eats fish fork she with
+S -> NP VP
+VP -> VP PP
+VP -> V NP
+VP -> eats
+PP -> P NP
+NP -> D N
+NP -> she
+V -> eats
+P -> with
+N -> fish
+N -> fork
+D -> a
+S
