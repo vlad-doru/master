@@ -2,6 +2,7 @@ package grammar
 
 import (
 	"fmt"
+	"sync"
 )
 
 type NProd struct {
@@ -15,6 +16,7 @@ type CNFGrammar struct {
 
 	inverse map[string][]string
 	nprods  []NProd
+	mutex   sync.RWMutex
 }
 
 func validation(g *Grammar, prod []string) error {
@@ -49,13 +51,15 @@ func NewCNFGrammar(file_path string) (*CNFGrammar, error) {
 			}
 		}
 	}
-	return &CNFGrammar{g, inverse, nprods}, nil
+	return &CNFGrammar{g, inverse, nprods, sync.RWMutex{}}, nil
 }
 
-func addN(dp map[int]map[int]map[string]bool, i int, j int, N string) {
+func (g *CNFGrammar) addN(dp map[int]map[int]map[string]bool, i int, j int, N string) {
 	_, ok := dp[i][j]
 	if !ok {
+		g.mutex.Lock()
 		dp[i][j] = make(map[string]bool)
+		g.mutex.Unlock()
 	}
 	dp[i][j][N] = true
 }
@@ -67,28 +71,37 @@ func (g *CNFGrammar) CYKParsing(ws []string) bool {
 		if ok {
 			dp[i] = make(map[int]map[string]bool)
 			for _, n := range ns {
-				addN(dp, i, i+1, n)
+				g.addN(dp, i, i+1, n)
 			}
 		} else {
 			return false
 		}
 	}
+	wait := sync.WaitGroup{}
 	// Calculam pentru fiecare subsecventa de lungime l.
 	for l := 2; l <= len(ws); l++ {
 		// Luam toti posibilii indici de inceput.
+
 		for i := 0; i < len(ws)-l+1; i++ {
 			j := i + l
-			// Impartim secventa [i, j] in [i, k] [k + 1, j]
-			for k := i + 1; k < j; k++ {
-				for _, p := range g.nprods {
-					_, left := dp[i][k][p.L]
-					_, right := dp[k][j][p.R]
-					if left && right {
-						addN(dp, i, j, p.N)
+			wait.Add(1)            // Efectuam pt fiecare subsecventa de lungime l calculele in paralel
+			go func(i, j, l int) { // Paralelism
+				// Impartim secventa [i, j] in [i, k] [k + 1, j]
+				for k := i + 1; k < j; k++ {
+					for _, p := range g.nprods {
+						g.mutex.RLock() // Folosim un read-write mutex pentru performanta.
+						_, left := dp[i][k][p.L]
+						_, right := dp[k][j][p.R]
+						g.mutex.RUnlock()
+						if left && right {
+							g.addN(dp, i, j, p.N)
+						}
 					}
 				}
-			}
+				wait.Done()
+			}(i, j, l)
 		}
+		wait.Wait()
 	}
 	_, accepted := dp[0][len(ws)][g.S]
 	return accepted
