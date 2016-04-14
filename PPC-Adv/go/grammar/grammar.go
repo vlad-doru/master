@@ -79,9 +79,11 @@ func NewGrammar(file_path string, validation ProdValidation) (*Grammar, error) {
 				return nil, fmt.Errorf("Simbolul %s nu se afla in N, T sau \\.", x)
 			}
 		}
-		err := validation(line[2:])
-		if err != nil {
-			return nil, err
+		if validation != nil {
+			err := validation(line[2:])
+			if err != nil {
+				return nil, err
+			}
 		}
 		grammar.P[line[0]] = append(grammar.P[line[0]], line[2:])
 	}

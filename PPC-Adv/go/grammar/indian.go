@@ -12,7 +12,7 @@ type IndianGrammar struct {
 }
 
 func NewIndianGrammar(file_path string) (*IndianGrammar, error) {
-	g, err := NewGrammar(file_path)
+	g, err := NewGrammar(file_path, nil)
 	if err != nil {
 		return nil, err
 	}
