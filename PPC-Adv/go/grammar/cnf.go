@@ -2,7 +2,11 @@ package grammar
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 	"sync"
+	"text/tabwriter"
 )
 
 type NProd struct {
@@ -72,6 +76,7 @@ func (g *CNFGrammar) CYKParsing(ws []string) bool {
 			dp[i] = make(map[int]map[string]bool)
 			for _, n := range ns {
 				g.addN(dp, i, i+1, n)
+				g.addN(dp, i, i+1, w)
 			}
 		} else {
 			return false
@@ -104,5 +109,29 @@ func (g *CNFGrammar) CYKParsing(ws []string) bool {
 		wait.Wait() // Asteptam toate subsecventele pentru a putea trece la lungimi mai mari.
 	}
 	_, accepted := dp[0][len(ws)][g.S]
+	if accepted {
+		// Printam matricea de programare dinamica.
+		fmt.Println("\n---------------------------------")
+		wr := new(tabwriter.Writer)
+		// Formatare.
+		wr.Init(os.Stdout, 0, 8, 0, '\t', 0)
+		for i := 0; i < len(ws); i++ {
+			line := []string{strconv.Itoa(i)}
+			for j := 1; j <= len(ws); j++ {
+				d, ok := dp[i][j]
+				if !ok {
+					line = append(line, "-")
+					continue
+				}
+				cell := make([]string, 0)
+				for n, _ := range d {
+					cell = append(cell, n)
+				}
+				line = append(line, strings.Join(cell, ", "))
+			}
+			fmt.Fprintln(wr, strings.Join(line, "\t"))
+		}
+		wr.Flush()
+	}
 	return accepted
 }
