@@ -32,7 +32,7 @@ def add_features(data, sentim_analyzer, min_freq = 10):
 def extract_features(data, sentim_analyzer):
     return sentim_analyzer.apply_features(data)
 
-def train_model(input_data, sentim_analyzer, trainer, sample_size = None):
+def train_model(input_data, sentim_analyzer, trainer, sample_size = None, get_classifiers = False):
     if sample_size == None:
         sample_size = len(input_data)
     if "name" in trainer:
@@ -43,6 +43,7 @@ def train_model(input_data, sentim_analyzer, trainer, sample_size = None):
     sys.stdout.flush()
     cv = cross_validation.KFold(len(data), n_folds=10, shuffle = True)
     evaluations = []
+    classifiers = []
     fold = 0
     for train_index, test_index in cv:
         train_set = set(train_index)
@@ -58,7 +59,12 @@ def train_model(input_data, sentim_analyzer, trainer, sample_size = None):
         testing_features = extract_features(testing_data, sentim_analyzer)
 
         classifier = sentim_analyzer.train(trainer["train"], training_features)
+        if get_classifiers:
+            classifiers.append(classifier)
+
         print("\tEvaluating fold", fold)
         sys.stdout.flush()
         evaluations.append(sentim_analyzer.evaluate(testing_features))
+    if get_classifiers:
+        return evaluations, classifiers
     return evaluations
