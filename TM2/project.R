@@ -1,0 +1,59 @@
+### READING
+# Read data from the .csv file.
+data <- read.csv("./input/sentiment.csv")
+# Remove neutral tweets from the dataset and keep only sentiment and text columns
+tweets <- data[data["sentiment"] != "Neutral",c("sentiment", "text")]
+tweets[,"sentiment"] <- factor(tweets[,"sentiment"])
+# Log how many tweets we have loaded.
+sprintf("Number of available tweets is %d.", nrow(tweets))
+
+### PREPROCESSING
+library(tm) 
+library(RTextTools)
+library(SnowballC)
+library(RWeka)
+# Make all words lowercase in all of the tweets.
+tweets[,"text"] <- sapply(tweets[,"text"], tolower)
+# Remove all the URLs as they are not relevant.
+tweets[, "text"] <- sapply(tweets[,"text"], function(x) gsub("http\\S+\\s*", "", x))
+# Remove all the @ mentions.
+tweets[, "text"] <- sapply(tweets[,"text"], function(x) gsub("@\\S+\\s*", "", x))
+# Remove the # character so that we have better matching. 
+tweets[, "text"] <- sapply(tweets[,"text"], function(x) gsub("#", "", x))
+# Remove the " character.
+tweets[, "text"] <- sapply(tweets[,"text"], function(x) gsub("\"", "", x))
+
+# Construct the corpus of our tweets.
+tweets_corpus <- Corpus(VectorSource(tweets[,"text"]))
+# Construct the document term matrix.
+dt_matrix <- DocumentTermMatrix(tweets_corpus,
+                        control=list(
+                          wordLengths = c(1, Inf),
+                          bounds = list(global = c(10, Inf)),  # at least 5 documents
+                          weighting = weightBin
+                          #weighting = weightTfIdf            # weight by tf-id
+                        ))
+features_matrix <- as.matrix(dt_matrix)
+print(dim(features_matrix))
+
+### ML Part
+library(caret)
+library(dplyr)         # Used by caret
+library(kernlab)       # support vector machine 
+library(pROC)
+library(vbmp)
+
+trainIndex <- createDataPartition(tweets$sentiment,p=.01,list=FALSE)
+trainData <- features_matrix[trainIndex,]
+testData <- features_matrix[-trainIndex,]
+trainLabels <- tweets[trainIndex, "sentiment"]
+testLabels <- tweets[-trainIndex, "sentiment"]
+
+dim(trainData)
+
+#Train and Tune the SVM
+naive <- train(trainData, trainLabels, method="nb", trControl=trainControl(verbose = TRUE, method='cv',number=10), verbose = TRUE)
+testData <- testData[1:1000, ]
+dim(testData)
+p <- predict(naive, testData)
+summary(p)
