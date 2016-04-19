@@ -7,11 +7,12 @@ tweets[,"sentiment"] <- factor(tweets[,"sentiment"])
 # Log how many tweets we have loaded.
 sprintf("Number of available tweets is %d.", nrow(tweets))
 
-### PREPROCESSING
+### LIBRARIES
 library(tm) 
 library(RTextTools)
-library(SnowballC)
-library(RWeka)
+library(caret)
+
+### PREPROCESSING
 # Make all words lowercase in all of the tweets.
 tweets[,"text"] <- sapply(tweets[,"text"], tolower)
 # Remove all the URLs as they are not relevant.
@@ -28,32 +29,39 @@ tweets_corpus <- Corpus(VectorSource(tweets[,"text"]))
 # Construct the document term matrix.
 dt_matrix <- DocumentTermMatrix(tweets_corpus,
                         control=list(
-                          wordLengths = c(1, Inf),
-                          bounds = list(global = c(10, Inf)),  # at least 5 documents
-                          weighting = weightBin
-                          #weighting = weightTfIdf            # weight by tf-id
+                          wordLengths = c(1, Inf),            # we allow any length for words
+                          bounds = list(global = c(5, Inf)),  # at least 5 documents
+                          stemming = TRUE,                    # stem the words
+                          removePunctuation = TRUE,           # remove the punctuation
+                          weighting = weightTf                # weight with TF
                         ))
 features_matrix <- as.matrix(dt_matrix)
-print(dim(features_matrix))
-
+sprintf("Using %d features.", ncol(features_matrix))
 ### ML Part
-library(caret)
-library(dplyr)         # Used by caret
-library(kernlab)       # support vector machine 
-library(pROC)
-library(vbmp)
 
-trainIndex <- createDataPartition(tweets$sentiment,p=.01,list=FALSE)
+sample_size <- .10
+
+trainIndex <- createDataPartition(tweets$sentiment,p=sample_size,list=FALSE)
+trainData <- features_matrix[trainIndex,]
+
 trainData <- features_matrix[trainIndex,]
 testData <- features_matrix[-trainIndex,]
 trainLabels <- tweets[trainIndex, "sentiment"]
 testLabels <- tweets[-trainIndex, "sentiment"]
 
-dim(trainData)
+sprintf("Using %d examples for our training data.", nrow(trainData))
 
-#Train and Tune the SVM
-naive <- train(trainData, trainLabels, method="nb", trControl=trainControl(verbose = TRUE, method='cv',number=10), verbose = TRUE)
-testData <- testData[1:1000, ]
-dim(testData)
-p <- predict(naive, testData)
-summary(p)
+# Train and Tune the SVM, performing Cross Validation.
+svm <- train(trainData,        # train features
+             trainLabels,      # train labels
+             method="svmLinear",          # use a linear kernel since the number of features is big       
+             tuneGrid=data.frame(C = 1),  # tune the parameter C
+             trControl=trainControl(
+               verbose = TRUE,            
+               method='cv',               # use Cross-Validation
+               number=10                  # 10 folds
+             ))
+print(svm)
+#p <- predict(svm, testData)
+#summary(p)
+#mean(p == testLabels)
