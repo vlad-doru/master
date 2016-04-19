@@ -11,6 +11,7 @@ sprintf("Number of available tweets is %d.", nrow(tweets))
 library(tm) 
 library(RTextTools)
 library(caret)
+library(kernlab)
 
 ### PREPROCESSING
 # Make all words lowercase in all of the tweets.
@@ -39,11 +40,10 @@ features_matrix <- as.matrix(dt_matrix)
 sprintf("Using %d features.", ncol(features_matrix))
 ### ML Part
 
-sample_size <- .10
+SIZE <- .10 # TODO: Change this to .90
 
-trainIndex <- createDataPartition(tweets$sentiment,p=sample_size,list=FALSE)
-trainData <- features_matrix[trainIndex,]
-
+trainIndex <- createDataPartition(tweets$sentiment,p=SIZE,list=FALSE)
+# Create training and testing data.
 trainData <- features_matrix[trainIndex,]
 testData <- features_matrix[-trainIndex,]
 trainLabels <- tweets[trainIndex, "sentiment"]
@@ -51,16 +51,22 @@ testLabels <- tweets[-trainIndex, "sentiment"]
 
 sprintf("Using %d examples for our training data.", nrow(trainData))
 
+trControl <- trainControl(
+  verbose = TRUE, # display training information
+  method = 'cv',  # use cross validation
+  number = 10     # use k-folds cross validation with k = 10
+)
+
+### SVM - LINEAR SVM
 # Train and Tune the SVM, performing Cross Validation.
-svm <- train(trainData,        # train features
-             trainLabels,      # train labels
-             method="svmLinear",          # use a linear kernel since the number of features is big       
-             tuneGrid=data.frame(C = 1),  # tune the parameter C
-             trControl=trainControl(
-               verbose = TRUE,            
-               method='cv',               # use Cross-Validation
-               number=10                  # 10 folds
-             ))
+tuneGrid <- data.frame(
+  C = 2 ^ seq(-6, 4, 1)
+)
+svm <- train(trainData, 
+             trainLabels, 
+             method="svmLinear", # linear kernel SVM   
+             tuneGrid=tuneGrid,
+             trControl=trControl)
 print(svm)
 #p <- predict(svm, testData)
 #summary(p)
