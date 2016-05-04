@@ -57,31 +57,32 @@ void parallel_sort(vector<int>& numbers, int partitions_count) {
 	Timer tmr;
 	for (const auto p : partitions) {
 		workers.push_back(std::thread([&numbers, &pivots, &buckets, &locks, p]() {
-		  vector<vector<int>> local_buckets;
-      for (int j = 0; j <= pivots.size(); ++j) {
-        local_buckets.push_back(vector<int>()); 
-        local_buckets[j].reserve((p.second - p.first) / pivots.size());
-      }
-      for (int i = p.first; i < p.second; i++) {
-        bool ok = false;
-        for (int j = 0; j < pivots.size(); ++j) {
-          if (numbers[i] < pivots[j]) {
-            local_buckets[j].push_back(numbers[i]); 
-            ok = true;
-            break;
-          }   
-        }
-        if (ok) {
-          continue;
-        }
-        local_buckets[pivots.size()].push_back(numbers[i]);
-      }
+		  sort(numbers.begin() + p.first, numbers.begin() + p.second);
+		  /* vector<vector<int>> local_buckets; */
+      /* for (int j = 0; j <= pivots.size(); ++j) { */
+        /* local_buckets.push_back(vector<int>()); */ 
+        /* local_buckets[j].reserve((p.second - p.first) / pivots.size()); */
+      /* } */
+      /* for (int i = p.first; i < p.second; i++) { */
+        /* bool ok = false; */
+        /* for (int j = 0; j < pivots.size(); ++j) { */
+          /* if (numbers[i] < pivots[j]) { */
+            /* local_buckets[j].push_back(numbers[i]); */ 
+            /* ok = true; */
+            /* break; */
+          /* } */   
+        /* } */
+        /* if (ok) { */
+          /* continue; */
+        /* } */
+        /* local_buckets[pivots.size()].push_back(numbers[i]); */
+      /* } */
       // Put all the local buckets into the global bucket.
-      for (int i = 0; i <= pivots.size(); ++i) {
-        locks[i]->lock();
-        buckets[i].insert(buckets[i].end(), local_buckets[i].begin(), local_buckets[i].end());
-        locks[i]->unlock();
-      }
+      /* for (int i = 0; i <= pivots.size(); ++i) { */
+      /*   locks[i]->lock(); */
+      /*   buckets[i].insert(buckets[i].end(), local_buckets[i].begin(), local_buckets[i].end()); */
+      /*   locks[i]->unlock(); */
+      /* } */
 		}));
 	}
 	for (auto& w : workers) {
