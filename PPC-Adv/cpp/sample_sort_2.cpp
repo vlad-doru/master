@@ -17,15 +17,16 @@ class Timer {
     return std::chrono::duration_cast<second_>(clock_::now() - beg_).count(); 
   }
 
-  private:
-    typedef std::chrono::high_resolution_clock clock_;
-    typedef std::chrono::duration<double, std::ratio<1> > second_;
-    std::chrono::time_point<clock_> beg_;
+ private:
+  typedef std::chrono::high_resolution_clock clock_;
+  typedef std::chrono::duration<double, std::ratio<1> > second_;
+  std::chrono::time_point<clock_> beg_;
 };
 
 using namespace std;
 
 void parallel_sort(vector<int>& numbers, int partitions_count) {
+  // Cream partiitile.
 	int partition_size = numbers.size() / partitions_count;
 	vector<pair<int, int>> partitions;
 	for (int i = 0; i < partitions_count; ++i) {
@@ -46,70 +47,65 @@ void parallel_sort(vector<int>& numbers, int partitions_count) {
 	for (int i = 0, j = oversampling; i < (partitions_count - 1); ++i, j += oversampling) {
 		pivots.push_back(samples[j]);
 	}
-	std::vector<std::thread> workers;
-  std::vector<std::vector<int>> buckets;
-  std::vector<std::mutex*> locks;
+	vector<thread> workers;
+  vector<vector<int>> buckets;
+  vector<mutex*> locks;
   // Initialize each of the buckets.
-	for (const auto p : partitions) {
+	for (int i = 0; i < partitions.size(); ++i) {
 	  buckets.push_back(vector<int>());
-	  locks.push_back(new std::mutex);
+	  locks.push_back(new mutex);
   }
-	Timer tmr;
 	for (const auto p : partitions) {
-		workers.push_back(std::thread([&numbers, &pivots, &buckets, &locks, p]() {
-		  sort(numbers.begin() + p.first, numbers.begin() + p.second);
-		  /* vector<vector<int>> local_buckets; */
-      /* for (int j = 0; j <= pivots.size(); ++j) { */
-        /* local_buckets.push_back(vector<int>()); */ 
-        /* local_buckets[j].reserve((p.second - p.first) / pivots.size()); */
-      /* } */
-      /* for (int i = p.first; i < p.second; i++) { */
-        /* bool ok = false; */
-        /* for (int j = 0; j < pivots.size(); ++j) { */
-          /* if (numbers[i] < pivots[j]) { */
-            /* local_buckets[j].push_back(numbers[i]); */ 
-            /* ok = true; */
-            /* break; */
-          /* } */   
-        /* } */
-        /* if (ok) { */
-          /* continue; */
-        /* } */
-        /* local_buckets[pivots.size()].push_back(numbers[i]); */
-      /* } */
+		workers.push_back(thread([&numbers, &pivots, &buckets, &locks, p]() {
+		  vector<vector<int>> local_buckets;
+      for (int j = 0; j <= pivots.size(); ++j) {
+        local_buckets.push_back(vector<int>()); 
+        // Reserve in advance to avoid multiple allocations.
+        local_buckets[j].reserve((p.second - p.first) / pivots.size());
+      }
+      for (int i = p.first; i < p.second; i++) {
+        bool ok = false;
+        for (int j = 0; j < pivots.size(); ++j) {
+          if (numbers[i] < pivots[j]) {
+            local_buckets[j].push_back(numbers[i]); 
+            ok = true;
+            break;
+          }   
+        }
+        if (ok) {
+          continue;
+        }
+        local_buckets[pivots.size()].push_back(numbers[i]);
+      }
       // Put all the local buckets into the global bucket.
-      /* for (int i = 0; i <= pivots.size(); ++i) { */
-      /*   locks[i]->lock(); */
-      /*   buckets[i].insert(buckets[i].end(), local_buckets[i].begin(), local_buckets[i].end()); */
-      /*   locks[i]->unlock(); */
-      /* } */
+      for (int i = 0; i <= pivots.size(); ++i) {
+        locks[i]->lock();
+        buckets[i].insert(buckets[i].end(), local_buckets[i].begin(), local_buckets[i].end());
+        locks[i]->unlock();
+      }
 		}));
 	}
 	for (auto& w : workers) {
 		w.join();
 	}
-	double t = tmr.elapsed();
-	cout << "Bucket Workers time " << t << endl;
-	tmr.reset();
-	std::vector<std::thread> sort_workers;
+	// Sortam fiecare bucket si il punem inapoi in vectorul initial.
+	vector<thread> sort_workers;
 	int aux = 0;
   for (auto& bucket : buckets) {
-		sort_workers.push_back(std::thread([&bucket, &numbers, aux]() {
+		sort_workers.push_back(thread([&bucket, &numbers, aux]() {
       sort(bucket.begin(), bucket.end());
-      std::copy(bucket.begin(), bucket.end(), numbers.begin() + aux);
+      copy(bucket.begin(), bucket.end(), numbers.begin() + aux);
     }));
     aux += bucket.size();
   }
 	for (auto& w : sort_workers) {
 		w.join();
 	}
-	t = tmr.elapsed();
-	cout << "Sorter Workers time " << t << endl;
 }
 
 int main(int argc, char *argv[]) {
   srand (0);
-	int n = 10000000;
+	int n = 50000000;
 	vector<int> numbers;
 	for(int i = 0; i < n; ++i) {
 		numbers.push_back(rand() % 1000000000);
@@ -122,7 +118,7 @@ int main(int argc, char *argv[]) {
 	// Copy the vector.
 	vector<int> ns = numbers;
 	Timer tmr;
-	parallel_sort(ns, 4);
+	parallel_sort(ns, cores * 2);
 	double t = tmr.elapsed();
 	cout << "Parallel Sorting time: " << t << " s\n";
 	// Verifica corectitudinea vectorului.
