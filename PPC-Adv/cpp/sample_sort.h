@@ -1,27 +1,11 @@
 #include <iostream>
-#include <ctime>
 #include <algorithm>
-#include <fstream>
 #include <vector>
 #include <thread>
 #include <utility>
-#include <tuple>
 #include <mutex>
-#include <chrono>
 
-class Timer {
- public:
-  Timer() : beg_(clock_::now()) {}
-  void reset() { beg_ = clock_::now(); }
-  double elapsed() const { 
-    return std::chrono::duration_cast<second_>(clock_::now() - beg_).count(); 
-  }
-
- private:
-  typedef std::chrono::high_resolution_clock clock_;
-  typedef std::chrono::duration<double, std::ratio<1> > second_;
-  std::chrono::time_point<clock_> beg_;
-};
+#include "merge_sort.h"
 
 using namespace std;
 
@@ -35,7 +19,7 @@ void parallel_sort(vector<int>& numbers, int partitions_count) {
 		partitions.push_back(make_pair(start, end));
 	}
   // Facem sampling pentru elementele noastre.
-	int oversampling = 100;
+	int oversampling = partitions_count;
 	vector<int> samples;
 	for (int i = 0; i < oversampling * partitions_count; ++i) {
 		samples.push_back(numbers[rand() % numbers.size()]); 
@@ -50,21 +34,27 @@ void parallel_sort(vector<int>& numbers, int partitions_count) {
 	vector<thread> workers;
   vector<vector<int>> buckets;
   vector<mutex*> locks;
-  // Initialize each of the buckets.
+  // Initializam fiecare bucket.
 	for (int i = 0; i < partitions.size(); ++i) {
 	  buckets.push_back(vector<int>());
 	  locks.push_back(new mutex);
   }
+	// Pentru fiecare partitie vom avea un worker care va distribui fiecare element
+  // in bucket-ul corespunzator, conform pivotilor alesi.
 	for (const auto p : partitions) {
 		workers.push_back(thread([&numbers, &pivots, &buckets, &locks, p]() {
+			// Vom folosi nise bucket-uri locale pentru a evita folosire repetata a 
+			// mutexurilor.
 		  vector<vector<int>> local_buckets;
       for (int j = 0; j <= pivots.size(); ++j) {
         local_buckets.push_back(vector<int>()); 
-        // Reserve in advance to avoid multiple allocations.
+				// Rezervam memorie in avans pentru a evita multiple alocari.
         local_buckets[j].reserve((p.second - p.first) / pivots.size());
       }
       for (int i = p.first; i < p.second; i++) {
         bool ok = false;
+        // Evitam cautarea binara, deoarece este mai rapid 
+        // sa folosim o iterare pentru un numar mic de pivoti.
         for (int j = 0; j < pivots.size(); ++j) {
           if (numbers[i] < pivots[j]) {
             local_buckets[j].push_back(numbers[i]); 
@@ -77,7 +67,7 @@ void parallel_sort(vector<int>& numbers, int partitions_count) {
         }
         local_buckets[pivots.size()].push_back(numbers[i]);
       }
-      // Put all the local buckets into the global bucket.
+      // Copiem continutul bucket-urilor locale in bucketurile globale.
       for (int i = 0; i <= pivots.size(); ++i) {
         locks[i]->lock();
         buckets[i].insert(buckets[i].end(), local_buckets[i].begin(), local_buckets[i].end());
@@ -85,54 +75,23 @@ void parallel_sort(vector<int>& numbers, int partitions_count) {
       }
 		}));
 	}
+	// Asteptam ca fiecare worker sa termine job-ul sau.
 	for (auto& w : workers) {
 		w.join();
 	}
 	// Sortam fiecare bucket si il punem inapoi in vectorul initial.
 	vector<thread> sort_workers;
-	int aux = 0;
+	int pos = 0;
   for (auto& bucket : buckets) {
-		sort_workers.push_back(thread([&bucket, &numbers, aux]() {
-      sort(bucket.begin(), bucket.end());
-      copy(bucket.begin(), bucket.end(), numbers.begin() + aux);
+		sort_workers.push_back(thread([&bucket, &numbers, pos]() {
+		  // Sortam bucket-ul.
+      merge_sort(bucket);
+      // Copiem bucket-ul inapoi in vectorul original.
+      copy(bucket.begin(), bucket.end(), numbers.begin() + pos);
     }));
-    aux += bucket.size();
+    pos += bucket.size();
   }
 	for (auto& w : sort_workers) {
 		w.join();
 	}
-}
-
-int main(int argc, char *argv[]) {
-  srand (0);
-	int n = 50000000;
-	vector<int> numbers;
-	for(int i = 0; i < n; ++i) {
-		numbers.push_back(rand() % 1000000000);
-	}
-	cout << "Au fost generate " << n << " numere!" << endl;
-	auto cores = thread::hardware_concurrency();
-	cout << "Paralelism maxim disponibil: " << cores << endl;
-	cout << "Incepe sortare" << "\n";
-	auto start = clock();
-	// Copy the vector.
-	vector<int> ns = numbers;
-	Timer tmr;
-	parallel_sort(ns, cores * 2);
-	double t = tmr.elapsed();
-	cout << "Parallel Sorting time: " << t << " s\n";
-	// Verifica corectitudinea vectorului.
-	for (int i = 1; i < n; ++i) {
-		if (ns[i-1] > ns[i]) {
-			cout << "Sortare gresita " << endl;
-			return 1;
-		}
-	}
-	// Sorteaza normal pentru comparatie.
-	ns = numbers;
-  tmr.reset();
-	sort(ns.begin(), ns.end());
-	t = tmr.elapsed();
-	cout << "Sorting time: " << t << " s\n";
-	return 0;
 }
