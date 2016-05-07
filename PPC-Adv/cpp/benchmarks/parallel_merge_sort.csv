@@ -1,0 +1,82 @@
+Paralelism maxim disponibil: 4
+Algoritm, Timp (s), Dimensiune
+Parallel merge sort, 0.00105381, 1000
+Merge sort,  0.000758667, 1000
+Parallel merge sort, 0.000528796, 1000
+Merge sort,  0.000858179, 1000
+Parallel merge sort, 0.000569652, 1000
+Merge sort,  0.000627035, 1000
+Parallel merge sort, 0.000495576, 1000
+Merge sort,  0.000756618, 1000
+Parallel merge sort, 0.000549746, 1000
+Merge sort,  0.00076924, 1000
+Parallel merge sort, 0.000516083, 1000
+Merge sort,  0.000667928, 1000
+Parallel merge sort, 0.000477984, 1000
+Merge sort,  0.00082627, 1000
+Parallel merge sort, 0.000630271, 1000
+Merge sort,  0.00056756, 1000
+Parallel merge sort, 0.000682953, 1000
+Merge sort,  0.000751457, 1000
+Parallel merge sort, 0.000558521, 1000
+Merge sort,  0.000810205, 1000
+Parallel merge sort, 0.0551182, 100000
+Merge sort,  0.0763263, 100000
+Parallel merge sort, 0.0545883, 100000
+Merge sort,  0.0883916, 100000
+Parallel merge sort, 0.0538048, 100000
+Merge sort,  0.077938, 100000
+Parallel merge sort, 0.0543416, 100000
+Merge sort,  0.0808803, 100000
+Parallel merge sort, 0.0560357, 100000
+Merge sort,  0.0778785, 100000
+Parallel merge sort, 0.053558, 100000
+Merge sort,  0.0755851, 100000
+Parallel merge sort, 0.0536059, 100000
+Merge sort,  0.0818915, 100000
+Parallel merge sort, 0.0535998, 100000
+Merge sort,  0.075815, 100000
+Parallel merge sort, 0.0525988, 100000
+Merge sort,  0.0800553, 100000
+Parallel merge sort, 0.0525392, 100000
+Merge sort,  0.0805639, 100000
+Parallel merge sort, 0.601908, 1000000
+Merge sort,  0.831725, 1000000
+Parallel merge sort, 0.502356, 1000000
+Merge sort,  0.877946, 1000000
+Parallel merge sort, 0.507376, 1000000
+Merge sort,  0.833372, 1000000
+Parallel merge sort, 0.574873, 1000000
+Merge sort,  0.81196, 1000000
+Parallel merge sort, 0.527121, 1000000
+Merge sort,  0.880239, 1000000
+Parallel merge sort, 0.505795, 1000000
+Merge sort,  0.871054, 1000000
+Parallel merge sort, 0.539901, 1000000
+Merge sort,  0.809848, 1000000
+Parallel merge sort, 0.587877, 1000000
+Merge sort,  0.83891, 1000000
+Parallel merge sort, 0.503492, 1000000
+Merge sort,  0.872522, 1000000
+Parallel merge sort, 0.513605, 1000000
+Merge sort,  0.829794, 1000000
+Parallel merge sort, 6.29443, 10000000
+Merge sort,  9.46957, 10000000
+Parallel merge sort, 5.8123, 10000000
+Merge sort,  9.41314, 10000000
+Parallel merge sort, 5.83858, 10000000
+Merge sort,  9.36946, 10000000
+Parallel merge sort, 5.78545, 10000000
+Merge sort,  9.41319, 10000000
+Parallel merge sort, 5.91811, 10000000
+Merge sort,  9.38426, 10000000
+Parallel merge sort, 5.87359, 10000000
+Merge sort,  9.39619, 10000000
+Parallel merge sort, 5.84394, 10000000
+Merge sort,  9.47615, 10000000
+Parallel merge sort, 5.85586, 10000000
+Merge sort,  9.39118, 10000000
+Parallel merge sort, 5.94542, 10000000
+Merge sort,  9.41814, 10000000
+Parallel merge sort, 5.97636, 10000000
+Merge sort,  9.2778, 10000000
