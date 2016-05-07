@@ -1,4 +1,3 @@
-Paralelism maxim disponibil: 4
 Algoritm, Timp (s), Dimensiune
 Parallel merge sort, 0.00105381, 1000
 Merge sort,  0.000758667, 1000
